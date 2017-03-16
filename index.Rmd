@@ -1063,7 +1063,7 @@ class: inverse, middle, center
 
 ---
 
-# DT
+# `DT`
 
 ```{r dt0, out.width='100%', eval=FALSE}
 library(DT)
@@ -1090,7 +1090,7 @@ class: fullscreen, middle, center
 
 ---
 
-# Leaflet
+# `leaflet`
 
 ```{r leaflet0, eval=FALSE}
 library(leaflet)
@@ -1113,6 +1113,31 @@ leaflet(df) %>%
 class: fullscreen, middle, center
 
 ```{r leaflet1, ref.label="leaflet0", out.width='100%', out.height='100%', message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
+```
+
+---
+
+# `rbokeh`
+
+```{r rbokeh0, eval=FALSE}
+library(rbokeh)
+p <- figure() %>%
+    ly_points(value.birthsper1000, value.deathsper1000,
+              data = subset(who_cbdr, !is.na(country)),
+              color = worldbankincomegroup,
+              hover = list(country,
+                           value.birthsper1000,
+                           value.deathsper1000)) %>%
+    x_axis(label = "Crude Birth Rate") %>%
+    y_axis(label = "Crude Death Rate")
+p
+```
+
+---
+
+class: fullscreen, middle, center
+
+```{r rbokeh1, ref.label="rbokeh0", out.width='100%', out.height='100%', message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
 ---
