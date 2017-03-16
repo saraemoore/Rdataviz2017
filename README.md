@@ -17,7 +17,7 @@ browseURL("index.html")
 **Note**: To compile as-is, the following R packages should be installed (versions used to successfully render this document are included for reference):
 + [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) v1.3
 + [RefManageR](https://CRAN.R-project.org/package=RefManageR) v0.13.1
-+ [WHO](ttps://CRAN.R-project.org/package=WHO) v0.2
++ [WHO](https://CRAN.R-project.org/package=WHO) v0.2
 + [ggplot2](https://CRAN.R-project.org/package=ggplot2) v2.2.1
 + [sysfonts](https://CRAN.R-project.org/package=sysfonts) v0.5
 + [showtext](https://CRAN.R-project.org/package=showtext) v0.4-6
@@ -28,7 +28,7 @@ browseURL("index.html")
 + [gtable](https://CRAN.R-project.org/package=gtable) v0.2.0
 + [ggiraph](https://github.com/davidgohel/ggiraph) v0.3.2.9000 (install via `devtools::install_github()` as of this writing)
 + [gdtools](https://cran.r-project.org/package=gdtools) v0.1.3
-+ [plotly](hhttps://CRAN.R-project.org/package=plotly) v4.5.6
++ [plotly](https://CRAN.R-project.org/package=plotly) v4.5.6
 + [DT](https://CRAN.R-project.org/package=DT) v0.2
 + [leaflet](https://CRAN.R-project.org/package=leaflet) v1.1.0
 + [googleVis](https://CRAN.R-project.org/package=googleVis) v0.6.2
