@@ -1,0 +1,14 @@
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.cache
+.Rapp.history
+.Rhistory
+.nojekyll
+Rplots.svg
+__packages
+*.RData
+*.rdb
+*.rdx

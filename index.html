@@ -1121,7 +1121,7 @@ class: inverse, middle, center
 
 ---
 
-# MotionChart with `googleVis` (Flash)
+# MotionChart with `googleVis`
 
 
 ```r
@@ -1149,20 +1149,13 @@ plot(mc) # in an R session, opens in browser
 
 
 
+### &lt;a href="gvis_motion_chart.html" target="_blank"&gt;View visualization in new tab&lt;/a&gt; (Flash-based)
+
 ???
 
 * "The googleVis package provides an interface between R and the Google Charts API. Google Charts offer interactive charts which can be embedded into web pages. The best known of these charts is probably the Motion Chart, popularised by Hans Rosling in his TED talks.
 The functions of the googleVis package allow the user to visualise data stored in R data frames with Google Charts without uploading the data to Google. The output of a googleVis function is html code that contains the data and references to JavaScript functions hosted by Google."
 * # data.frame with &gt;=4 cols: x, y, id, time. color and size optional, but if you don't provide them, it will choose them for you (if there are columns left to use)
-
----
-
-class: fullscreen, middle, center
-
-## &lt;a href="gvis_motion_chart.html" target="_blank"&gt;View visualization in new tab&lt;/a&gt;
-
-???
-
 * by default the html file is saved in a temporary folder. if you have problems with a motion chart not displaying, it may be because of Flash's security settings. You'll need to manually add the directory where the html file is stored to the list of trusted local directories.
 
 ---
@@ -1208,31 +1201,19 @@ URL:
 
 # Session Info
 
-
-```
-## 
-## Attaching package: 'pander'
-```
-
-```
-## The following object is masked from 'package:R.utils':
-## 
-##     wrap
-```
-
 **R version 3.3.2 (2016-10-31)**
 
 **Platform:** x86_64-apple-darwin13.4.0 (64-bit) 
 
 
 **attached base packages:** 
-_grid_, _methods_, _stats_, _graphics_, _grDevices_, _utils_, _datasets_ and _base_
+_grid_, _stats_, _graphics_, _grDevices_, _utils_, _datasets_ and _base_
 
 **other attached packages:** 
-_pander(v.0.6.0)_, _leaflet(v.1.1.0)_, _DT(v.0.2)_, _plotly(v.4.5.6)_, _gdtools(v.0.1.3)_, _ggiraph(v.0.3.2.9000)_, _ggrepel(v.0.6.5)_, _googleVis(v.0.6.2)_, _gtable(v.0.2.0)_, _ggdendro(v.0.1-20)_, _RColorBrewer(v.1.1-2)_, _tidyr(v.0.6.1)_, _hexbin(v.1.27.1)_, _munsell(v.0.4.3)_, _showtext(v.0.4-6)_, _sysfonts(v.0.5)_, _ggplot2(v.2.2.1)_, _rmarkdown(v.1.3)_, _lubridate(v.1.6.0)_, _dplyr(v.0.5.0)_, _WHO(v.0.2)_, _R.utils(v.2.5.0)_, _R.oo(v.1.21.0)_, _R.methodsS3(v.1.7.1)_ and _RefManageR(v.0.13.1)_
+_pander(v.0.6.0)_, _googleVis(v.0.6.2)_, _leaflet(v.1.1.0)_, _DT(v.0.2)_, _plotly(v.4.5.6)_, _gdtools(v.0.1.3)_, _ggiraph(v.0.3.2.9000)_, _gtable(v.0.2.0)_, _ggdendro(v.0.1-20)_, _tidyr(v.0.6.1)_, _ggrepel(v.0.6.5)_, _dplyr(v.0.5.0)_, _showtext(v.0.4-6)_, _sysfonts(v.0.5)_, _ggplot2(v.2.2.1)_ and _RefManageR(v.0.13.1)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.0.12.9)_, _lattice(v.0.20-34)_, _assertthat(v.0.1)_, _rprojroot(v.1.2)_, _digest(v.0.6.12)_, _mime(v.0.5)_, _R6(v.2.2.0)_, _plyr(v.1.8.4)_, _backports(v.1.0.5)_, _evaluate(v.0.10)_, _httr(v.1.2.1)_, _xaringan(v.0.2)_, _lazyeval(v.0.2.0)_, _curl(v.2.3)_, _labeling(v.0.3)_, _stringr(v.1.2.0)_, _htmlwidgets(v.0.8)_, _RCurl(v.1.95-4.8)_, _shiny(v.1.0.0)_, _httpuv(v.1.3.3)_, _base64enc(v.0.1-3)_, _rvg(v.0.1.2)_, _htmltools(v.0.3.5)_, _tibble(v.1.2)_, _codetools(v.0.2-15)_, _XML(v.3.98-1.5)_, _viridisLite(v.0.1.3)_, _showtextdb(v.1.0)_, _MASS(v.7.3-45)_, _bitops(v.1.0-6)_, _jsonlite(v.1.3)_, _xtable(v.1.8-2)_, _DBI(v.0.6)_, _magrittr(v.1.5)_, _scales(v.0.4.1)_, _bibtex(v.0.4.0)_, _stringi(v.1.1.2)_, _xml2(v.1.1.1)_, _tools(v.3.3.2)_, _RJSONIO(v.1.3-0)_, _purrr(v.0.2.2)_, _crosstalk(v.1.0.0)_, _yaml(v.2.1.14)_, _colorspace(v.1.3-2)_ and _knitr(v.1.15.1)_
+_purrr(v.0.2.2)_, _colorspace(v.1.3-2)_, _htmltools(v.0.3.5)_, _viridisLite(v.0.1.3)_, _yaml(v.2.1.14)_, _base64enc(v.0.1-3)_, _XML(v.3.98-1.5)_, _R.oo(v.1.21.0)_, _DBI(v.0.6)_, _R.utils(v.2.5.0)_, _RColorBrewer(v.1.1-2)_, _plyr(v.1.8.4)_, _stringr(v.1.2.0)_, _munsell(v.0.4.3)_, _R.methodsS3(v.1.7.1)_, _htmlwidgets(v.0.8)_, _codetools(v.0.2-15)_, _evaluate(v.0.10)_, _labeling(v.0.3)_, _knitr(v.1.15.1)_, _httpuv(v.1.3.3)_, _crosstalk(v.1.0.0)_, _methods(v.3.3.2)_, _Rcpp(v.0.12.9)_, _xtable(v.1.8-2)_, _scales(v.0.4.1)_, _backports(v.1.0.5)_, _jsonlite(v.1.3)_, _mime(v.0.5)_, _digest(v.0.6.12)_, _stringi(v.1.1.2)_, _shiny(v.1.0.0)_, _xaringan(v.0.2)_, _showtextdb(v.1.0)_, _RJSONIO(v.1.3-0)_, _rprojroot(v.1.2)_, _bibtex(v.0.4.0)_, _tools(v.3.3.2)_, _bitops(v.1.0-6)_, _magrittr(v.1.5)_, _lazyeval(v.0.2.0)_, _RCurl(v.1.95-4.8)_, _tibble(v.1.2)_, _MASS(v.7.3-45)_, _xml2(v.1.1.1)_, _rvg(v.0.1.2)_, _lubridate(v.1.6.0)_, _assertthat(v.0.1)_, _rmarkdown(v.1.3)_, _httr(v.1.2.1)_ and _R6(v.2.2.0)_
     </textarea>
 <script src="libs/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

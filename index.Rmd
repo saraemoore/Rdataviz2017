@@ -1177,7 +1177,7 @@ class: inverse, middle, center
 
 ---
 
-# MotionChart with `googleVis` (Flash)
+# MotionChart with `googleVis`
 
 ```{r googlevis0a, results='asis', message=FALSE, eval=TRUE}
 library(googleVis)
@@ -1205,20 +1205,13 @@ plot(mc) # in an R session, opens in browser
 print(mc, file = "gvis_motion_chart.html")
 ```
 
+### <a href="gvis_motion_chart.html" target="_blank">View visualization in new tab</a> (Flash-based)
+
 ???
 
 * "The googleVis package provides an interface between R and the Google Charts API. Google Charts offer interactive charts which can be embedded into web pages. The best known of these charts is probably the Motion Chart, popularised by Hans Rosling in his TED talks.
 The functions of the googleVis package allow the user to visualise data stored in R data frames with Google Charts without uploading the data to Google. The output of a googleVis function is html code that contains the data and references to JavaScript functions hosted by Google."
 * # data.frame with >=4 cols: x, y, id, time. color and size optional, but if you don't provide them, it will choose them for you (if there are columns left to use)
-
----
-
-class: fullscreen, middle, center
-
-## <a href="gvis_motion_chart.html" target="_blank">View visualization in new tab</a>
-
-???
-
 * by default the html file is saved in a temporary folder. if you have problems with a motion chart not displaying, it may be because of Flash's security settings. You'll need to manually add the directory where the html file is stored to the list of trusted local directories.
 
 ---
