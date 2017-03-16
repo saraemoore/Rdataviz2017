@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advanced Data Visualization in R</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Sara E. Moore" />
+    <meta name="date" content="2017-03-16" />
+    <link href="libs/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-0.8/htmlwidgets.js"></script>
+    <link href="libs/plotlyjs-1.16.3/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="libs/plotlyjs-1.16.3/plotly-latest.min.js"></script>
+    <script src="libs/plotly-binding-4.5.6/plotly.js"></script>
+    <script src="libs/jquery-1.12.4/jquery.min.js"></script>
+    <script src="libs/datatables-binding-0.2/datatables.js"></script>
+    <link href="libs/dt-core-1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="libs/dt-core-1.10.12/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="libs/dt-core-1.10.12/js/jquery.dataTables.min.js"></script>
+    <link href="libs/leaflet-0.7.7/leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-0.7.7/leaflet.js"></script>
+    <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+    <link href="libs/leaflet-label-0.2.2/leaflet.label.css" rel="stylesheet" />
+    <script src="libs/leaflet-label-0.2.2/leaflet.label.js"></script>
+    <script src="libs/Proj4Leaflet-0.7.2/proj4-compressed.js"></script>
+    <script src="libs/Proj4Leaflet-0.7.2/proj4leaflet.js"></script>
+    <script src="libs/leaflet-binding-1.1.0/leaflet.js"></script>
+    <script src="libs/leaflet-providers-1.0.27/leaflet-providers.js"></script>
+    <script src="libs/leaflet-providers-plugin-1.1.0/leaflet-providers-plugin.js"></script>
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Advanced Data Visualization in R
+## Epi Doctoral seminar
+### Sara E. Moore
+### 16 March 2017
+
+---
+
+
+
+
+
+
+
+# How to access these slides
+## (and associated code)
+
+### Via git:
+
+
+```bash
+git clone https://github.com/saraemoore/Rdataviz2017.git
+```
+
+### Download directly:
+https://github.com/saraemoore/Rdataviz2017/archive/master.zip
+
+### View online:
+http://saraemoore.github.io/Rdataviz2017
+
+???
+
+* I won't be showing all the code on the slides today, but it's all available in the R Markdown document used to create these slides in this repository on github.
+
+---
+
+# Prerequisites
+
+You have:
+* a working knowledge of R,
+* some familiarity with the usage of `ggplot2` (such as what was presented during the [2016 UC Berkeley SCF/D-Lab R Bootcamp](https://github.com/berkeley-scf/r-bootcamp-2016)),
+* an interest in creating data visualizations in R, both **static** (mostly using *ggplot2*) and **interactive** (using a variety of packages).
+
+---
+class: inverse, middle, center
+
+# `ggplot2` and the Grammar of Graphics
+
+---
+
+# Why `ggplot`?
+
+* It's pretty.
+* Its commands are intuitive and "human-readable."
+* Nearly any graphic can be created, so you can use it for everything and maintain a consistent style.
+* It has (sort of) built-in support for maps.
+
+???
+
+* If you're here, you're probably already using ggplot or are interested in learning to use it. But, I'm still going to tell you why it's a good thing to use.
+* Of course, it's pretty. Graphics made with ggplot are eye-catching.  This is actually pretty important -- it goes a long way when you want anyone who is not a statistician to look at your graphs.
+* The code you use to call ggplot and create a graphic is fairly intuitive.  This is because of the "grammar of graphics" that it adheres to, and we'll get back to that in a bit. This is what the "gg" in "ggplot" stands for -- "grammar of graphics" -- so the philosophy is pretty central to the package.
+* If you learn how to use it well, you can make almost any visualization in it, and your reports, presentations, papers, and so on will look more cohesive because you stuck to a particular style throughout.
+* Finally, with a little help from other R packages, ggplot is able to interface with geographical maps.
+
+---
+
+# Why not `ggplot`?
+
+* It's slow.
+* It won't do some things.
+* There's a steep learning curve.
+* ~~`lattice` is better at trellis graphs?~~ [Faceting](https://learnr.wordpress.com/2009/08/26/ggplot2-version-of-figures-in-lattice-multivariate-data-visualization-with-r-final-part/) is just as powerful.
+
+???
+
+* So, what are the arguments against ggplot?
+* It's slower than other R graphics systems. This is a fair point. However, it's probably not something you'll notice under everyday use.
+* It also won't draw some graphics that you might want it to. One example that's often brought up is 3D surface plots. But, do you really want to make a static 3D perspective plot? There are other, arguably better, ways to represent three-dimensional data in 2D, like contour plots and heatmaps. This is kind of the story with most things that ggplot supposedly "can't" do -- it's a principled decision by a designer to limit the use of his product -- artistic license. For example, having two y-axes, each using a different scale for a different variable, is difficult if not impossible to do in ggplot -- which may be for the best because having two y-axes can be misleading. Moving x-axis labels to the top, rather than the bottom, is difficult but can be done. ggplot also refuses to use more than six shapes -- citing difficultly in determining which is which -- unless you manually override this by specifying your own shapes.
+* ggplot can be difficult to break into. If you force yourself to use it, it will become natural fairly quickly, though. You can also start with qplot aka "quick plot," but I won't be going over that here.
+* Some people argue that lattice is better at trellis graphs, which were made popular by William Cleveland's 1993 book "Visualizing Data." However, I disagree. I've included a link here to a compilation of a series of blog posts from 2009 in which nearly every graphic in the entire Lattice book by Deepayan Sarkar was recreated in ggplot. You can tweak these examples to make them look even more like lattice output, if you want, but the point is that faceting works just as well.
+
+---
+
+# Tidy data &lt;sup&gt;1&lt;/sup&gt;
+
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table.
+
+.pull-left[
+
+![](assets/img/tidydata_tab1and2.png)
+
+]
+
+.pull-right[
+
+![](assets/img/tidydata_tab3.png)
+
+]
+
+
+.footnote[1: &lt;a name=cite-Wickham_2014&gt;&lt;/a&gt;[Wickham (2014)](http://www.jstatsoft.org/v59/i10)]
+
+???
+
+* One stumbling block when getting started with ggplot is that your data needs to be in a certain format before you can use it in ggplot effectively.  One name for this format is "tidy data." It can also be called long or tall, as opposed to wide, data, but tidy data is a particular type of long data.  The general idea is that there should be one row per observation, whatever you're calling a single observation for your purposes, and one column per variable.  This means that you're typically going to want to collapse indicators into factors, for example, or you may need to think carefully about what your observational unit is.
+* Here, the first two tables display data that is not tidy. The third table displays the same data, but made tidy.
+
+---
+
+# The (Layered) Grammar of Graphics &lt;sup&gt;1&lt;/sup&gt;
+
+* Move away from using "names" and "chart typologies."
+* Instead, use "statements" constructed via grammar
+* Why?
+    + An infinite number of unique graphics can be created.
+    + The implementation is **DRY** ("don't repeat yourself") not **WET** ("write everything twice" or "we enjoy typing").
+
+&gt; "Good grammar is just the first step in creating a good sentence." &amp;nbsp;&lt;sup&gt;2&lt;/sup&gt;
+
+.footnote[1: &lt;a name=cite-Wilkinson_2005&gt;&lt;/a&gt;&lt;a name=cite-Wickham_2009&gt;&lt;/a&gt;&lt;a name=cite-Wickham_2010&gt;&lt;/a&gt;[Wilkinson (2009)](http://dx.doi.org/10.1007/0-387-28695-0); [Wickham (2010)](http://dx.doi.org/10.1007/978-0-387-98141-3); [Wickham (2009)](http://dx.doi.org/10.1198/jcgs.2009.07098)&lt;br /&gt;2: [Wickham (2010)](http://dx.doi.org/10.1198/jcgs.2009.07098)]
+
+???
+
+* As I mentioned previously, one of the best qualities of ggplot is that a series of commands used to generate a graphic are human-readable.  This is because ggplot adheres to the so-called "grammar of graphics," first laid out by Leland Wilkinson in 1999. The general idea is, instead of using a "name," "chart typology," or drawing from what Hadley Wickham calls a "big collection of special cases," think more abstractly and use a "statement" to describe a graphic -- and we need a grammar to construct statements. This infinitely expands the number of unique graphics that can be created and it adheres to the **DRY** ("don't repeat yourself") programming principle (as opposed to WET, "write everything twice" or "we enjoy typing")
+* Hadley Wickham's quote from his 2010 paper on his take grammar of graphics is just meant to say that this is not a recipe for a perfect graphic -- you can still make some pretty poor visualizations with ggplot -- but it is the first step.
+
+---
+
+# Components of the Grammar
+
+Specify a statistical graphic using components of statements:
++ **Data** (`data`),
++ **Stat**istical transformations (`stat_*`: identity, count, mean, etc.),
++ **Geom**etric elements/objects (`geom_*`: points, lines, etc.),
++ **Aes**thetic mappings (`aes` and `aes_*`: color, shape, size, transparency, etc.),
++ **Coord**inate systems (`coord_*`: cartesian, polar, map, etc.),
++ **Guide**s/Legends (`guide_*`, `guides`),
++ **Scale**s/Axes and transformations thereof (`scale_*`),
++ **Facet**ing/conditioning/latticing/trellising (`facet_*`),
++ Tweaking graphical positioning and visual elements (`position_*`, `annotation_*`, `theme`, `element_*`, etc.), and
++ Layering.
+
+???
+
+* The general concepts or classes, which are kind of a mash-up of Wilkinson's and Wickham's philosophies, are listed here. The realizations of these concepts in `ggplot` are in parentheses so we can connect the ideas to the R commands. Also, layering is not a statement itself, but is implied by the order of the other components.
+
+---
+
+# The anatomy of a `ggplot` call
+
+* All arguments to the first function called, `ggplot`, set graph defaults.
+* These defaults can be changed for an individual layer (even `data`).
+
+
+```r
+ggplot(data=, aes(x=, y=, ...)) +
+	geom_????(...) +
+	...
+```
+
+```r
+ggplot() +
+	geom_????(data=, aes(x=, y=, ...), ...) +
+	...
+```
+
+???
+
+* Some guides, including the ggplot book, start you off with the qplot or "quick plot" command. That's nice if you're coming from another graphics framework like base graphics in R. But, in the interest of time, because I'm assuming a little bit of familiarity with ggplot with this group, and because the ggplot command is more powerful than qplot, I'm going to skip right to using the ggplot command here.
+* These are some simple examples of the ways in which you would create a very simple graph using ggplot. Any aesthetics or data you provide to the ggplot command, which always gets called first in the "statement," set defaults for the entire graph. You can instead choose to leave the ggplot command empty -- without arguments -- if you'd like to specify individual data and aesthetics for each geometric object. You can even specify a defaults AND specify different settings for individual geometric elements. Note that it is best practice to not repeat yourself, so typically you'll set some defaults up front and only change later in the statement any individual elements that you want to change.
+
+---
+
+# When geoms transform
+
+geom                | stat                |  notable default settings
+------------------- | ------------------- | -------------------
+`geom_boxplot()`    | `stat_boxplot()`    | max length of whiskers (beyond hinges) = 1.5*IQR
+`geom_count()`      | `stat_sum()`        |
+`geom_bar()`        | `stat_count()`      |
+`geom_histogram()`  | `stat_bin()`        | 30 bins: binwidth = [range of x]/30
+`geom_freqpoly()`   | `stat_bin()`        | 30 bins: binwidth = [range of x]/30
+`geom_dotplot()`    |                     | 30 bins: binwidth = [range of x]/30; Wilkinson's "dot-density" binning method
+`geom_bin2d()`      | `stat_bin_2d()`     | 30 bins for each of x and y
+`geom_hex()`        | `stat_bin_hex()`    | 30 bins for each of x and y (calls `hexbin::hexbin()`)
+
+???
+
+* Some geometric objects are straightforward. Others involve statistical transformations.
+* On this slide and the next is a reference list of the geometric elements in ggplot that "silently" transform data by default, i.e. their default stat is not "identity." Also listed here are the defaults of those transformations. Although I called a "stat" function earlier that, by default, created a "geom", it is much more common in practice to just call a "geom" and add arguments specifying the "stat".
+* The boxplot is a special case where many elements cannot be set by the user, but that's alright because they're what you'd expect them to be. The middle line is the median and the lower and upper hinges represent the lower and upper quartiles, respectively. The one thing you can specify is how far - at a maximum - the whiskers extend beyond the hinges, but the default (1.5 x inter-quartile range) is consistent with John Tukey's boxplot. You can also make a notched boxplot with geom_boxplot, and the notch locations are not specifiable, but I won't go into the settings for that here -- you can find it in the documentation if you're interested.
+
+---
+
+# When geoms transform
+
+geom                | stat                |  notable default settings
+------------------- | ------------------- | -------------------
+`geom_density_2d()` | `stat_density_2d()` | bivariate Gaussian kernel; bandwidths (x and y) estimated by `MASS::bandwidth.nrd()` using Scott's "rule of thumb"; 100 grid points for x and y (calls `MASS::kde2d()`)
+`geom_contour()`    | `stat_contour()`    | 10 `pretty()` breakpoints covering [range of z]
+`geom_density()`    | `stat_density()`    | Gaussian kernel; bandwidth estimated by `stats::bw.nrd0()` using Silverman's "rule of thumb" (calls `stats::density()`)
+`geom_violin()`     | `stat_ydensity()`   | Gaussian kernel; bandwidth estimated by `stats::bw.nrd0()` using Silverman's "rule of thumb" (calls `stats::density()`); all violins have same area before trimming tails, tails are trimmed to [range of y]
+
+---
+
+# When geoms transform
+
+geom                | stat                |  notable default settings
+------------------- | ------------------- | -------------------
+`geom_smooth()`     | `stat_smooth()`     | if `\(n&lt;1000\)`, `stats::loess()` with polynomial degree 2, `\(\alpha=0.75\)`, etc.; else, `gam::gam()` with penalized cubic regression splines, etc.; 80 evaluation points &lt;br/&gt;
+`geom_quantile()`   | `stat_quantile()`   | 3 quartiles; modified Barrodale &amp; Roberts quantile regression method (calls `quantreg::rq()`)
+
+???
+
+* For one and two dimensional kernel density estimates, by default, the bandwidth is chosen automatically via Scott's "rule of thumb," which I won't go into here, but the formula is available in the R help via the functions I've listed here. For two dimensional density estimates, the kernel cannot be changed to anything other than Gaussian.
+* For loess and gam I only listed the most interesting parameters -- there are more that you can set. Just know that the "et cetera" indicates that any defaults not listed here for these functions are not modified in ggplot's call.
+* FYI, violin plots were the big culprit for derailing the job talk a couple of years ago. As you can see, they're a bit tricky.
+
+---
+
+# Other `ggplot` transformations
+
+These `stat_*` functions do not have assumed `geom_*` mappings. See their documentation for details of the transformations applied.
+
+* `stat_ecdf`: Empirical Cumulative Density Function
+* `stat_ellipse`: Plot data ellipses.
+* `stat_function`: Superimpose a function.
+* `stat_qq`: Calculation for quantile-quantile plot.
+* `stat_spoke`: Convert angle and radius to xend and yend.
+* `stat_summary`: Summarise y values at every unique x.
+* `stat_summary_bin`: Summarise y values at unique/binned x.
+* `stat_summary_hex`: Apply function for 2D hexagonal bins.
+* `stat_summary_2d`: Apply function for 2D rectangular bins.
+* `stat_unique`: Remove duplicates.
+* `stat_identity`
+
+---
+
+# Where to go for help with `ggplot2`
+
+* [RStudio's ggplot2 cheat sheet](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf) (updated for ggplot2 v2.1.0, Nov 2016)
+* [Hadley Wickham's ggplot2 book (2009)](http://link.springer.com/book/10.1007%2F978-0-387-98141-3), the book's [github repo](https://github.com/hadley/ggplot2-book), or the [companion website](http://ggplot2.org/book/) to the book
+* [official documentation](http://docs.ggplot2.org/current/)
+* [google group](https://groups.google.com/forum/#!forum/ggplot2)
+* [ggplot2 on stackoverflow](http://stackoverflow.com/tags/ggplot2/info)
+* The [data visualisation](http://r4ds.had.co.nz/data-visualisation.html) and [graphics for communication](http://r4ds.had.co.nz/graphics-for-communication.html) chapters in Garrett Grolemund and Hadley Wickham's [R for data science](http://r4ds.had.co.nz/).
+* Winston Chang's R Graphics Cookbook, [1st edition (2012)](http://shop.oreilly.com/product/0636920023135.do) or forthcoming 2nd edition (2017)
+
+---
+class: inverse, middle, center
+
+# `ggplot2` Examples
+
+---
+
+# The data
+
+* [WHO Global Health Observatory](www.who.int/gho/en/)
+* Example:
+
+
+```r
+library(WHO)
+codes &lt;- get_codes()
+who_data &lt;- get_data("WHS9_CBR")
+```
+
+
+
+
+
+
+
+
+
+* Alternatively, use data that ships with `ggplot2`:
+    + [diamonds](http://docs.ggplot2.org/current/diamonds.html),
+    + [mpg](http://docs.ggplot2.org/current/mpg.html),
+    + movies (now available as a separate R package, [ggplot2movies](https://CRAN.R-project.org/package=ggplot2movies)),
+    + etc.
+
+???
+
+* WHO GHO
+* If you don''t want to go to this trouble, ggplot2 ships with several good datasets that you can use instead -- a few of them are listed here. You can try your hand with one of those if you want some practice.
+
+---
+
+# A simple scatterplot
+
+
+```r
+library(ggplot2)
+p = ggplot(data = subset(who_cbdr, !is.na(country)),
+		aes(x = value.birthsper1000,
+			y = value.deathsper1000,
+			color = worldbankincomegroup)) +
+	geom_point()
+p
+```
+
+???
+
+* This is a simple example to get us started. Here we have DATA which contains all the NCAA basketball games played over 30 seasons between 1984 and 2014. Each row is an observation, as we''ve defined it for this problem -- a single basketball game. Each column is a variable. This data is tidy, at least for how we choose to represent it now -- but there are other ways to structure it.
+* There are no implicit or explicit transformations of the data going on, and the only aesthetics are the position of each point in two dimensional space, defined by x and y. The geometric objects here are points, which are displayed in ggplot by default as circles. And, because it''s just good practice, we''ve tweaked some visual elements, adding labels to each axis and a title to the graph.
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/simple_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+???
+
+* All that said, this is not a great graphic.  We can tell that, obviously, the winning team always scored as many or more points than the losing team, and it seems like there might be many games where the score was close, but it's difficult to tell because of all the overplotting. I'm not going to dwell too much on what a good versus bad plot is -- you'll know that from other classes, like Professor Dudoit's Computational Statistics course, but I just wanted to point that out here as a segue to the next graphic.
+
+---
+
+# Reorder a group aesthetic
+
+
+```r
+levels(who_cbdr$worldbankincomegroup)
+```
+
+```
+## [1] "Global"              "High-income"         "Low-income"         
+## [4] "Lower-middle-income" "Upper-middle-income"
+```
+
+
+```r
+# reorder factor levels
+who_cbdr$worldbankincomegroup = factor(
+	who_cbdr$worldbankincomegroup,
+	levels = levels(who_cbdr$worldbankincomegroup)[c(2, 5:3, 1)],
+	labels = c("High", "Upper-middle", "Lower-middle", "Low", "Global"))
+
+# recreate plot with modifed data
+p = p %+% subset(who_cbdr, !is.na(country))
+p
+```
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/grouporder_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Add labels
+
+
+```r
+p = p +
+	xlab("Crude birth rate") +
+	ylab("Crude death rate") +
+	labs(title = "Global population rates",
+		 subtitle = "2013; per 1,000 population",
+		 caption = "Source: UN World Population Prospects (https://esa.un.org/unpd/wpp/)") +
+	theme(plot.title = element_text(hjust = 0.5),
+		  plot.subtitle = element_text(hjust = 0.5),
+		  plot.caption = element_text(size = 8))
+p
+```
+
+* `ggtitle()` can instead be used to set the title and subtitle
+* `scale_x_*()` and `scale_y_*()` can instead be used to set the x and y axis labels, respectively.
+* As of ggplot2 v2.2.0, title(s) are left-aligned by default.
+
+???
+
+* The crude birth rate is generally computed as a ratio. The numerator is the number of live births observed in a population during a reference period and the denominator is the number of person-years lived by the population during the same period. It is expressed as births per 1,000 population.
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/label_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Improve legend and colors
+
+
+```r
+p = p +
+	scale_colour_brewer("World Bank Income Group",
+						palette = "Dark2") +
+	theme(legend.position = "bottom")
+p
+```
+
+* For discrete/qualitative color schemes: `scale_colour_hue()`, `scale_colour_discrete()`, `scale_colour_brewer()`, `scale_colour_grey()`, `scale_colour_manual()`, `scale_colour_identity()`
+* For continuous (sequential or diverging) color schemes: `scale_colour_continuous()`, `scale_colour_distiller()`, `scale_colour_gradient()`, `scale_colour_gradient2()`, `scale_color_gradientn()`, `scale_colour_date()`, `scale_colour_datetime()`
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/legend_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# R color palette packages
+
+- [RColorBrewer](https://CRAN.R-project.org/package=RColorBrewer) ([palette browser](http://colorbrewer2.org)): custom color palettes with colorblind friendly, print-friendly, and photocopy-friendly options
+- [munsell](https://github.com/cwickham/munsell): called by `scales` to generate continuous/gradient palettes in `ggplot2`
+- [colorspace](https://CRAN.R-project.org/package=colorspace): color palettes based on the HCL (Hue-Chroma-Luminance) and HSV (Hue-Saturation-Value) systems
+- [viridis](https://github.com/sjmgarnier/viridis): color schemes from Matplotlib (Python plotting library)
+- [dichromat](https://CRAN.R-project.org/package=dichromat) ([palette browser](http://geography.uoregon.edu/datagraphics/color_scales.htm): color palettes for color-impaired viewers
+- [pals](https://github.com/kwstat/pals): color palettes and palette evaluation tools
+- [ggsci](https://github.com/road2stat/ggsci/): color palettes inspired by scientific journals, dataviz libraries, scifi movies, TV shows
+- [wesanderson](https://github.com/karthik/wesanderson): self-explanatory ([tumblr inspiration](http://wesandersonpalettes.tumblr.com/))
+- [scales](http://cran.r-project.org/web/packages/scales/index.html): additional functions to deal with ggplot `scale`s, including color palettes
+- `\(\ldots\)`
+
+---
+
+# Add a summary (or two)
+
+
+```r
+p = p +
+	stat_ellipse(type = "t", level = 0.9,
+				 segments = 80, alpha = 0.5) +
+	 geom_smooth(aes(color = NULL), method = "loess",
+	 			 span = 0.6, se = FALSE,
+	 			 color = "grey40", linetype = "longdash")
+p
+```
+
+* An alternative way to map an aesthetic to only some layers: specify the mapping in each layer but not in the call to `ggplot`.
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/summary_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Tweak the theme and font
+
+
+```r
+old_theme = theme_set(theme_minimal(base_size = 14))
+p
+```
+
+* Theme options: `theme_gray()`, `theme_bw()`, `theme_linedraw()`, `theme_light()`, `theme_dark()`, `theme_minimal()`, `theme_classic()`, `theme_void()`
+* Alternatively, the call to `theme_minimal()` above could be "added" to the plot `p`. However, this would wipe out previous changes made to `p` via `theme()`.
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/theme_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# `ggplot2` theme packages
+
+- [ggthemes](https://github.com/jrnold/ggthemes): extra `geom`s, `scale`s, and `theme`s for use with `ggplot2`
+- [hrbrthemes](https://github.com/hrbrmstr/hrbrthemes): typography-centric themes for `ggplot2`
+- [xkcd](https://CRAN.R-project.org/package=xkcd): `ggplot2` plot theme in the style of XKCD comics
+- [ggplot2bdc](https://github.com/briandconnelly/ggplot2bdc): 'clean' and specialized themes + additional useful functions
+- [ggthemr](https://github.com/cttobin/ggthemr): themes with predefined color palettes and options to modify other elements
+- `\(\ldots\)`
+
+---
+
+# Tweak the theme and font
+
+
+```r
+library(showtext)
+sysfonts::font.add.google("Open Sans", "open_sans")
+showtext::showtext.auto()
+p = p + theme(text = element_text(family = "open_sans"))
+p
+```
+
+* To use a font installed on the local system, call `font.add()` instead.
+* Can instead set font via `base_family` argument of any `theme_*()` function.
+* Turn off use of `showtext`: `showtext.auto(FALSE)`
+* Alternatively, use `showtext.begin()` and `showtext.end()` to only turn on `showtext` as desired
+* See [this blog post](http://statr.me/2014/07/showtext-with-knitr/) for details on using `showtext` with `knitr`
+    * The author recommends [`Cairo`](https://CRAN.R-project.org/package=Cairo) graphics devices for raster output due to sub-par antialiasing with default devices. YMMV
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/font_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Font packages
+
+.pull-left[
+
+**Access system/Google/etc. fonts:**
+
+- [showtext](https://github.com/yixuan/showtext): Easily use alternative fonts in R plots. Allows resulting (vector) graphics files to be font-independent.
+- [sysfonts](https://github.com/yixuan/sysfonts): Companion package to [showtext](https://github.com/yixuan/showtext). Loads system and Google fonts.
+- [extrafont](https://github.com/wch/extrafont): Use system TrueType fonts in R plots. Embeds fonts in resulting (vector) graphics files. A little more work to use but resulting files should retain text editability.
+- [tikzDevice](https://github.com/yihui/tikzDevice): `\(\LaTeX\)`-friendly R graphics output
+
+]
+
+.pull-right[
+
+**Emoji/icons/custom images:**
+
+- [emojifont](https://github.com/GuangchuangYu/emojifont)
+- [emoGG](https://github.com/dill/emoGG)
+- [ggimage](https://github.com/GuangchuangYu/ggimage)
+- [ggflags](https://github.com/baptiste/ggflags)
+- [rphylopic](https://github.com/sckott/rphylopic)
+
+]
+
+---
+
+# Label observations of interest
+
+
+```r
+library(dplyr)
+library(ggrepel)
+p = p + geom_label_repel(data = subset(who_cbdr,
+									   !is.na(country)) %&gt;%
+			group_by(worldbankincomegroup) %&gt;%
+			top_n(3, abs(scale(value.birthsper1000)) +
+			  		 abs(scale(value.deathsper1000))),
+		aes(label = country),
+		show.legend = FALSE,
+		size = 3.5,
+		alpha = 0.65,
+		box.padding = unit(0.6, "lines"),
+    	point.padding = unit(0.4, "lines"),
+    	segment.color = "grey50",
+    	segment.alpha = 0.65)
+p
+```
+
+* For a pure `ggplot2` solution, try `geom_label()` or `geom_text()` with `nudge_x` and/or `nudge_y` arguments
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/labelobs_scatterplot1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Packages for labeling &amp; orientation
+
+- [ggrepel](https://github.com/slowkow/ggrepel): prevent plot labels from overlapping
+- [directlabels](https://github.com/tdhock/directlabels) ([docs](http://directlabels.r-forge.r-project.org/)): directly label multicolor plots
+- [ggstance](https://github.com/lionel-/ggstance): horizontal versions of common ggplots
+
+
+
+
+???
+
+* Here we are explicitly calling a ggplot transformation that asks ggplot to hexagonally bin, in two dimensions, our observations. Here we're telling it to create bins of width 4 points for both x and y. The default is actually specified as binwidth, not number of bins, and it is 30 for both. The geometric objects, hexagons, are implied by this statement. Whenever you allow ggplot to transform your data, you should always know what it's doing -- here I'm careful to state the defaults and changed them just to demonstrate how it can be done.  This is one tricky part about using a "smart" graphics package -- you need to be sure to keep up with what it's doing to your data.  There was a job talk recently that I know some of you attended which was really amazing for the most part -- really advanced theory and good discussion -- but it was completely derailed for a good 5 minutes by discussion over a single graphic, which was made in ggplot, and which wasn't even demonstrating a main point of the talk.  The big issues were that there were several geometric objects drawn on the graph, and a couple of them performed transformations on the data, but it wasn't made clear exactly what those transformations were.  It's easy to use some of these functions without thinking very hard about them, particularly if you leave them at their default settings, but you really need to be careful.  That's why I'm showing this plot with the "stat_binhex" first, so that it's clear there''s a transformation happening.  However...
+* As you can see, this produces the same graph. However, now I'm using a call to a "geom" which has a defualt statistical transformation (as opposed to a stat with a default geom). I've explicitly stated the default here for clarity, which is called "binhex," or hexagonal binning of observations to form counts.
+
+---
+
+# A heatmap with `ggplot2`
+
+
+```r
+wrap_labels = function(x, width = 15) {
+	wrapped = strwrap(x, width = width, simplify = FALSE)
+	lapply(wrapped, paste, collapse = "\n")
+}
+
+p1 = ggplot(who_yllmajorcause,
+			aes(x = ghecauses, y = region, fill = med.pct)) +
+	geom_tile() +
+	scale_fill_distiller("Percent of total",
+						 palette = "Blues",
+						 direction = 1,
+						 breaks = seq(0, 100, 25),
+						 limits = c(0, 100),
+						 guide = guide_colorbar(barwidth = 15,
+						 						barheight = 1)) +
+	scale_x_discrete("Cause Group", expand = c(0, 0),
+					 labels = wrap_labels) +
+	scale_y_discrete("Region", expand = c(0, 0),
+					 labels = wrap_labels) +
+	ggtitle("Median percent of years of life lost",
+			subtitle = "in 2012 by cause and region") +
+	theme_minimal(base_size = 16) +
+	theme(legend.position = "bottom",
+		  plot.title = element_text(hjust = 0.5),
+		  plot.subtitle = element_text(hjust = 0.5))
+p1
+```
+
+???
+
+* Note that there is a package called `gplots` with a function called `heatmap.2`: this is commonly used to make heatmaps with dendrograms but is not the same as `ggplot`.
+* expand argument on scale_x_discrete and scale_y_discrete ensures that there is no margin inside the plot - the tiles run all the way to the edge
+* the labels argument accepts a mapping between new labels and old labels or a function
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/heatmap1-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Creating a dendrogram with `ggdendro`
+
+
+```r
+library(tidyr)
+library(ggdendro)
+
+who_yllmajorcause_mat = who_yllmajorcause %&gt;%
+						spread(region, med.pct) # long --&gt; wide
+
+rownames(who_yllmajorcause_mat) = who_yllmajorcause_mat[,"ghecauses"]
+col_idx = which(colnames(who_yllmajorcause_mat)=="ghecauses")
+who_yllmajorcause_mat = as.matrix(who_yllmajorcause_mat[, -col_idx])
+
+yll_hc = hclust(dist(t(who_yllmajorcause_mat)), "average")
+# plot the raw dendrogram
+ggdendrogram(yll_hc, rotate = TRUE)
+```
+
+???
+
+* transform the data frame from long to wide using tidyr::spread
+* do a little housekeeping to get a matrix that the dist() function will like
+* hierarchical clustering (hclust()) on the distances using average or UPGMA agglomeration method
+* create a dendrogram and rotate it so that the branches are horizontal, not vertical (corresponding with rows of heatmap)
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/dendro1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Simplifying the dendrogram
+
+
+```r
+library(grid) # unit
+
+yll_dendro = as.dendrogram(yll_hc)
+yll_ddata = dendro_data(yll_dendro)
+
+p2 = ggplot(segment(yll_ddata)) +
+		geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
+		coord_flip() +
+		theme_dendro()
+p2
+```
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/simpledendro1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Heatmap, reordered
+
+
+```r
+# just in case there are extra factor levels, etc., un-factor
+old_levels = levels(who_yllmajorcause$region)
+who_yllmajorcause$region = as.character(who_yllmajorcause$region)
+
+# re-factor with clustering/dendrogram ordering
+new_order = order.dendrogram(yll_dendro)
+who_yllmajorcause$region = factor(who_yllmajorcause$region,
+								  old_levels[new_order])
+
+# recreate heatmap with modifed data
+p1 = p1 %+% who_yllmajorcause
+p1
+```
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/heatmap1ro-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Putting it all together
+
+
+```r
+library(gtable)
+
+### dendrogram grob
+# tweak these if the dendrogram doesn't line up:
+dendro_margin = grid::unit(c(15, 0, -5, -10), "points")
+p2_grob = ggplotGrob(p2 + theme(plot.margin = dendro_margin))
+
+### heatmap grob
+p1_grob = ggplotGrob(p1)
+
+# add some space for the dendrogram
+g1 = gtable_add_cols(p1_grob, grid::unit(4, "cm"))
+# adjust top ("t") and bottom ("b") if no title/subtitle:
+g = gtable_add_grob(g1,
+					p2_grob,
+	t = 5, b = 6,
+	l = ncol(g1), r = ncol(g1))
+grid.newpage()
+grid.draw(g)
+```
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/heatmapdendro1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Packages to pair with `ggplot2`
+
+.pull-left[
+
+**Plot wrangling:**
+
+- [grid](https://stat.ethz.ch/R-manual/R-devel/library/grid/html/00Index.html): now a 'base' package (installed with vanilla R). `grid` graphics are the foundation on which `ggplot2` and `lattice` build.
+- [gridExtra](http://cran.r-project.org/web/packages/gridExtra/index.html): additional functions to tweak/manipulate grid graphics
+- [scales](http://cran.r-project.org/web/packages/scales/index.html): additional functions to deal with `scale`s
+- [gtable](http://cran.r-project.org/web/packages/gtable/index.html): use to dismantle/hack underlying table of Grid Graphical Objects (grobs) that make up a ggplot
+- [ggsubplot](http://cran.r-project.org/web/packages/ggsubplot/index.html): embed smaller subplots within larger plots
+- [cowplot](https://github.com/wilkelab/cowplot): arrange and label multiple plots on a grid, add overlays, etc.
+
+]
+
+.pull-right[
+
+**Data wrangling:**
+
+- [dplyr](http://cran.r-project.org/web/packages/dplyr/index.html): manipulate data
+- [tidyr](http://cran.r-project.org/web/packages/tidyr/index.html): restructure data (esp. wide `\(\leftrightarrow\)` long)
+- [lubridate](http://cran.r-project.org/web/packages/lubridate/index.html): "makes working with dates fun instead of frustrating"
+- and other [tidyverse](https://github.com/tidyverse/) packages
+
+]
+
+---
+
+# Packages to pair with `ggplot2`
+## Specialized Geoms/Stats
+
+- [ggdendro](https://github.com/andrie/ggdendro), [dendextend](https://github.com/talgalili/dendextend): dendrograms and tree diagrams with `ggplot2`
+- [ggtern](http://www.ggtern.com/): ternary diagrams (as in `vcd::ternaryplot`) and other additional *geom*s for `ggplot2`.
+- [GGally](https://github.com/ggobi/ggally): scatterplot plot matrices (as in `graphics::pairs`), pairwise plot matrices, parallel coordinates plots, survival plots, network plots, etc. with `ggplot2`
+- [ggHorizon](https://github.com/thomaskern/ggHorizon): horizon graphs with `ggplot2` ([example 1](http://www.perceptualedge.com/articles/visual_business_intelligence/time_on_the_horizon.pdf), [example 2](http://vis.berkeley.edu/papers/horizon/2009-TimeSeries-CHI.pdf))
+- [ggmosaic](https://github.com/haleyjeppson/ggmosaic): Mosaic plots
+- [survminer](https://github.com/kassambara/survminer): Survival curves
+- [waffle](https://github.com/hrbrmstr/waffle): waffle charts, sometimes referred to as square pie charts
+- [slopegraph](https://github.com/leeper/slopegraph): visualization created by Edward Tufte for plotting timeseries data.
+- [ggradar](https://github.com/ricardo-bion/ggradar): radar charts
+- [ggbio](http://bioconductor.org/packages/release/bioc/html/ggbio.html): `ggplot2` extensions for the visualization of genomic data
+
+---
+
+# Packages to pair with `ggplot2`
+## Specialized Geoms/Stats
+
+- [ggstraw](https://github.com/nacnudus/ggstraw): visualize the difference between two events related to one object
+- [ggraph](https://github.com/thomasp85/ggraph): `geom`s, `facet`s, and layouts for networks, graphs, trees, etc.
+- [geomnet](https://github.com/sctyner/geomnet): `geom`s and `stat`s for network visuaslization
+- [ggtree](https://guangchuangyu.github.io/ggtree/): visualize and annotate phylogenetic trees
+- [ggnetwork](https://github.com/briatte/ggnetwork) ([docs](https://briatte.github.io/ggnetwork/)): `geom`s for network plots
+- [ggTimeSeries](https://github.com/Ather-Energy/ggTimeSeries): time series visualizations
+- [ggseas](https://github.com/ellisp/ggseas): seasonal adjustment tools
+- [plotROC](https://github.com/sachsmc/plotROC): ROC plots using ggplot2. Some interactive functionality.
+- [classifierplots](https://github.com/ambiata/classifierplots): visualize classifier performance as grid of diagnostic plots
+- [ggExtra](https://github.com/daattali/ggExtra): marginal histograms, etc.
+- [ggpmisc](https://bitbucket.org/aphalo/ggpmisc): add equations and parameters from model fits as text or labels, label peaks, valleys, or observations in low density regions, etc.
+- [WVPlots](https://github.com/WinVector/WVPlots): "pre-packaged" ggplots
+- [ggforce](https://github.com/thomasp85/ggforce), [ggalt](https://github.com/hrbrmstr/ggalt): additional coordinate systems, `geom`s, etc.
+
+---
+
+# Packages to pair with `ggplot2`
+## Maps
+
+- [ggmap](https://github.com/dkahle/ggmap): allows visualization of spatial data and models on top of Google Maps, OpenStreetMaps, or Stamen Maps using ggplot2
+- [maps](http://cran.r-project.org/web/packages/maps/index.html): maps with `ggplot2`
+- [maptools](http://cran.r-project.org/web/packages/maptools/index.html)
+- [sp](http://cran.r-project.org/web/packages/sp/index.html)
+- [rgdal](http://cran.r-project.org/web/packages/rgdal/index.html)
+- [rworldmap](https://github.com/AndySouth/rworldmap/)
+- [RgoogleMaps](http://cran.r-project.org/web/packages/RgoogleMaps/index.html)
+- [statebins](https://github.com/hrbrmstr/statebins)
+
+## Et Cetera
+
+#### [Gallery of ggplot2 extensions](http://www.ggplot2-exts.org/gallery/)
+
+???
+
+* The examples for ggsubplot are a little "busy" but it actually can be useful in practice.  For example, if you want to zoom in on a particular part of a plot and show it as an inset, or show an inset of what a particular graph would look like under conditions like the null, and so on.
+* Note that the munsell color system is what is used by ggplot by default, but you may want to use the same color system to make your own palettes.
+
+---
+class: inverse, middle, center
+
+# Interactive graphics in R
+
+---
+
+# Why interactive?
+
+.pull-left[
+
+![](assets/img/economist_quickanddead.png)
+
+]
+
+.pull-right[
+
+- They're pretty, fun, and they engage audiences (see [Hans Rosling's TED talks](https://www.ted.com/speakers/hans_rosling)).
+- They allow you to connect with, explore, and discover more about your data -- visually.
+- Static graphics are "dead" (according to The Economist).
+
+]
+
+---
+
+# Interactive and animated `ggplot2` graphics
+
+- [ggiraph](https://github.com/davidgohel/ggiraph): make components of ggplot2 graphics **interactive** via additional aesthetics and geoms
+- [gganimate](https://github.com/dgrtwo/gganimate): create animated ggplot2 plots
+- [plotly](https://github.com/ropensci/plotly) ([docs](https://plot.ly/r/): Convert `ggplot2` graphics `\(\rightarrow\)` interactive graphics via `ggplotly()` OR create interactive graphics directly with `plot_ly()`, which function via the plot.ly [ggplot2 library](https://plot.ly/ggplot2/) and [R library](https://plot.ly/r/), respectively. Can operate entirely locally (meaning your plot doesn't have to be uploaded to plot.ly's servers and shared with the world).
+
+---
+
+# `ggplot2` + `ggiraph`
+
+
+```r
+p_basic = ggplot(data = subset(who_cbdr, !is.na(country)),
+			 aes(x = value.birthsper1000,
+				 y = value.deathsper1000,
+				 color = worldbankincomegroup)) +
+	scale_colour_brewer("World Bank Income Group",
+				palette = "Dark2") +
+	xlab("Crude birth rate") +
+	ylab("Crude death rate") +
+	labs(title = "Global population rates",
+		 subtitle = "2013; per 1,000 population",
+		 caption = "Source: UN World Population Prospects (https://esa.un.org/unpd/wpp/)") +
+	theme_minimal(base_size = 14) +
+	theme(plot.title = element_text(hjust = 0.5),
+		  plot.subtitle = element_text(hjust = 0.5),
+		  plot.caption = element_text(size = 8),
+		  legend.position = "bottom")
+
+p_basic +
+	geom_point()
+```
+
+---
+
+class: fullscreen, middle, center
+
+&lt;img src="index_files/figure-html/scatter_revisited1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# `ggplot2` + `ggiraph`
+
+
+```r
+# devtools::install_github("davidgohel/ggiraph")
+library(ggiraph)
+
+p_ggiraph = p_basic +
+	geom_point_interactive(
+		aes(tooltip = paste(gsub("'", "&amp;#39;", country),
+							paste(value.birthsper1000,
+								  value.deathsper1000,
+						  		  sep = ", "),
+							sep = ": ")))
+```
+
+* Use `geom_*_interactive()` in place of `geom_*()`
+* Use `tooltip`, `onclick` and `data_id` aesthetics to specify interactivity
+    * `tooltip`: displayed when mouse is over an element.
+	* `onclick`: javascript function to be executed when an element is clicked, such as `paste0("alert(\"", data$x, "\")" )`
+    * `data_id`: id to be associated with elements.
+* `gsub()` is used to substitute the ASCII equivalent for any apostrophes
+
+---
+
+# `ggplot2` + `ggiraph`
+
+
+```r
+# in an R session, opens in browser
+ggiraph(ggobj = p_ggiraph,
+		width_svg = 8,
+		height_svg = 6,
+		tooltip_opacity = 0.7)
+```
+
+
+
+## &lt;a href="ggiraph_scatter_plot.html" target="_blank"&gt;View visualization in new tab&lt;/a&gt;
+
+---
+
+# `ggplot` + `plotly`
+
+
+```r
+library(plotly)
+
+p_plotly = p_basic +
+	geom_point(aes(text = country))
+
+ggplotly(p_plotly)
+```
+
+* Use the `text` aesthetic to add additional information to the tooltips. `ggplot()` may complain about this but `ggplotly()` understands it.
+
+???
+
+* Start with the static ggplot
+* Note that graphics are NO LONGER uploaded to plot.ly and are **public** by default.
+* Also, the conversion does not always go as planned.  Sometimes the ggplotly function will reject the ggplot object with a cryptic error message. Sometimes it will convert it, but it will not look sensible. The tooltips are also not as helpful as they could be -- but there are apparently cumbersome ways to hack them. Your mileage may vary.
+
+
+---
+
+class: fullscreen, middle, center
+
+<div id="htmlwidget-2fd3abcb1bb969d2a5c8" style="width:100%;height:100%;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2fd3abcb1bb969d2a5c8">{"x":{"data":[{"x":[8.9,16.5,13.2,9.5,15.3,15.2,12.7,11.7,15.5,11.3,13.9,9.5,11.5,11.1,11.3,35.4,10.9,11.2,12.3,8.5,9.7,14.5,15.4,20.3,9.2,8.4,20.6,11,11.3,11.6,9.2,6.8,10.7,13.8,12.4,20.9,10.8,8.7,11,9.6,11.8,13.8,8.8,19.4,9.9,10.7,10,10.4,12,10.4,14.5,14.5,12.2,13.2,14.5],"y":[8.4,6.8,6.4,9,6.1,2.2,6.4,9.9,3.6,7.2,5.4,11.1,5.5,10,9.6,11.5,11.3,9.4,8.7,10.6,9.7,6.2,5.9,5.1,9.5,9.5,1.9,14.2,12,6.8,7.5,8.7,8.3,6.3,8.1,2.8,10,9.1,1.3,5.5,14.8,8.5,10.2,3.2,4.5,9.4,9.1,8.2,9.6,7.7,9.6,1.1,8.9,8.4,9.1],"text":["Andorra<br>value.birthsper1000: 8.9<br>value.deathsper1000: 8.4<br>worldbankincomegroup: High","Antigua and Barbuda<br>value.birthsper1000: 16.5<br>value.deathsper1000: 6.8<br>worldbankincomegroup: High","Australia<br>value.birthsper1000: 13.2<br>value.deathsper1000: 6.4<br>worldbankincomegroup: High","Austria<br>value.birthsper1000: 9.5<br>value.deathsper1000: 9<br>worldbankincomegroup: High","Bahamas<br>value.birthsper1000: 15.3<br>value.deathsper1000: 6.1<br>worldbankincomegroup: High","Bahrain<br>value.birthsper1000: 15.2<br>value.deathsper1000: 2.2<br>worldbankincomegroup: High","Barbados<br>value.birthsper1000: 12.7<br>value.deathsper1000: 6.4<br>worldbankincomegroup: High","Belgium<br>value.birthsper1000: 11.7<br>value.deathsper1000: 9.9<br>worldbankincomegroup: High","Brunei Darussalam<br>value.birthsper1000: 15.5<br>value.deathsper1000: 3.6<br>worldbankincomegroup: High","Canada<br>value.birthsper1000: 11.3<br>value.deathsper1000: 7.2<br>worldbankincomegroup: High","Chile<br>value.birthsper1000: 13.9<br>value.deathsper1000: 5.4<br>worldbankincomegroup: High","Croatia<br>value.birthsper1000: 9.5<br>value.deathsper1000: 11.1<br>worldbankincomegroup: High","Cyprus<br>value.birthsper1000: 11.5<br>value.deathsper1000: 5.5<br>worldbankincomegroup: High","Czechia<br>value.birthsper1000: 11.1<br>value.deathsper1000: 10<br>worldbankincomegroup: High","Denmark<br>value.birthsper1000: 11.3<br>value.deathsper1000: 9.6<br>worldbankincomegroup: High","Equatorial Guinea<br>value.birthsper1000: 35.4<br>value.deathsper1000: 11.5<br>worldbankincomegroup: High","Estonia<br>value.birthsper1000: 10.9<br>value.deathsper1000: 11.3<br>worldbankincomegroup: High","Finland<br>value.birthsper1000: 11.2<br>value.deathsper1000: 9.4<br>worldbankincomegroup: High","France<br>value.birthsper1000: 12.3<br>value.deathsper1000: 8.7<br>worldbankincomegroup: High","Germany<br>value.birthsper1000: 8.5<br>value.deathsper1000: 10.6<br>worldbankincomegroup: High","Greece<br>value.birthsper1000: 9.7<br>value.deathsper1000: 9.7<br>worldbankincomegroup: High","Iceland<br>value.birthsper1000: 14.5<br>value.deathsper1000: 6.2<br>worldbankincomegroup: High","Ireland<br>value.birthsper1000: 15.4<br>value.deathsper1000: 5.9<br>worldbankincomegroup: High","Israel<br>value.birthsper1000: 20.3<br>value.deathsper1000: 5.1<br>worldbankincomegroup: High","Italy<br>value.birthsper1000: 9.2<br>value.deathsper1000: 9.5<br>worldbankincomegroup: High","Japan<br>value.birthsper1000: 8.4<br>value.deathsper1000: 9.5<br>worldbankincomegroup: High","Kuwait<br>value.birthsper1000: 20.6<br>value.deathsper1000: 1.9<br>worldbankincomegroup: High","Latvia<br>value.birthsper1000: 11<br>value.deathsper1000: 14.2<br>worldbankincomegroup: High","Lithuania<br>value.birthsper1000: 11.3<br>value.deathsper1000: 12<br>worldbankincomegroup: High","Luxembourg<br>value.birthsper1000: 11.6<br>value.deathsper1000: 6.8<br>worldbankincomegroup: High","Malta<br>value.birthsper1000: 9.2<br>value.deathsper1000: 7.5<br>worldbankincomegroup: High","Monaco<br>value.birthsper1000: 6.8<br>value.deathsper1000: 8.7<br>worldbankincomegroup: High","Netherlands<br>value.birthsper1000: 10.7<br>value.deathsper1000: 8.3<br>worldbankincomegroup: High","New Zealand<br>value.birthsper1000: 13.8<br>value.deathsper1000: 6.3<br>worldbankincomegroup: High","Norway<br>value.birthsper1000: 12.4<br>value.deathsper1000: 8.1<br>worldbankincomegroup: High","Oman<br>value.birthsper1000: 20.9<br>value.deathsper1000: 2.8<br>worldbankincomegroup: High","Poland<br>value.birthsper1000: 10.8<br>value.deathsper1000: 10<br>worldbankincomegroup: High","Portugal<br>value.birthsper1000: 8.7<br>value.deathsper1000: 9.1<br>worldbankincomegroup: High","Qatar<br>value.birthsper1000: 11<br>value.deathsper1000: 1.3<br>worldbankincomegroup: High","Republic of Korea<br>value.birthsper1000: 9.6<br>value.deathsper1000: 5.5<br>worldbankincomegroup: High","Russian Federation<br>value.birthsper1000: 11.8<br>value.deathsper1000: 14.8<br>worldbankincomegroup: High","Saint Kitts and Nevis<br>value.birthsper1000: 13.8<br>value.deathsper1000: 8.5<br>worldbankincomegroup: High","San Marino<br>value.birthsper1000: 8.8<br>value.deathsper1000: 10.2<br>worldbankincomegroup: High","Saudi Arabia<br>value.birthsper1000: 19.4<br>value.deathsper1000: 3.2<br>worldbankincomegroup: High","Singapore<br>value.birthsper1000: 9.9<br>value.deathsper1000: 4.5<br>worldbankincomegroup: High","Slovakia<br>value.birthsper1000: 10.7<br>value.deathsper1000: 9.4<br>worldbankincomegroup: High","Slovenia<br>value.birthsper1000: 10<br>value.deathsper1000: 9.1<br>worldbankincomegroup: High","Spain<br>value.birthsper1000: 10.4<br>value.deathsper1000: 8.2<br>worldbankincomegroup: High","Sweden<br>value.birthsper1000: 12<br>value.deathsper1000: 9.6<br>worldbankincomegroup: High","Switzerland<br>value.birthsper1000: 10.4<br>value.deathsper1000: 7.7<br>worldbankincomegroup: High","Trinidad and Tobago<br>value.birthsper1000: 14.5<br>value.deathsper1000: 9.6<br>worldbankincomegroup: High","United Arab Emirates<br>value.birthsper1000: 14.5<br>value.deathsper1000: 1.1<br>worldbankincomegroup: High","United Kingdom of Great Britain and Northern Ireland<br>value.birthsper1000: 12.2<br>value.deathsper1000: 8.9<br>worldbankincomegroup: High","United States of America<br>value.birthsper1000: 13.2<br>value.deathsper1000: 8.4<br>worldbankincomegroup: High","Uruguay<br>value.birthsper1000: 14.5<br>value.deathsper1000: 9.1<br>worldbankincomegroup: High"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"High","legendgroup":"High","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[12.9,24.3,44.1,16.8,17.8,11,23.4,9,23.6,14.9,9.6,13.3,18.8,14.9,15.1,9.5,15.6,20.8,20.8,20.4,31.9,19.3,9.9,18.8,31.1,18,27,20.5,13.4,20.7,17.7,22,27.2,11.5,18.4,11.6,26,26.4,10.9,19.4,19.7,10.3,15.4,16.3,9.7,16.6,20.9,17.7,10.2,10.7,25.5,17.2,16.8,21.3,23.6,19.8,null],"y":[9.4,5.7,13.9,7.6,6.3,13.5,4,9.4,7.2,6.1,14.2,7.2,4.2,5,4.4,8.5,7.2,5.9,5.3,6.9,9,6.9,13,5.1,4.8,7.1,3.7,9.7,4.4,4.2,5,3.5,6.6,7.4,5.3,9.5,5.7,3.5,5.9,5,4.4,11.8,7,6.5,11.9,6.7,11.1,4.6,7.6,9.4,6.7,5.5,5.7,8.8,8.7,4.8,5.9],"text":["Albania<br>value.birthsper1000: 12.9<br>value.deathsper1000: 9.4<br>worldbankincomegroup: Upper-middle","Algeria<br>value.birthsper1000: 24.3<br>value.deathsper1000: 5.7<br>worldbankincomegroup: Upper-middle","Angola<br>value.birthsper1000: 44.1<br>value.deathsper1000: 13.9<br>worldbankincomegroup: Upper-middle","Argentina<br>value.birthsper1000: 16.8<br>value.deathsper1000: 7.6<br>worldbankincomegroup: Upper-middle","Azerbaijan<br>value.birthsper1000: 17.8<br>value.deathsper1000: 6.3<br>worldbankincomegroup: Upper-middle","Belarus<br>value.birthsper1000: 11<br>value.deathsper1000: 13.5<br>worldbankincomegroup: Upper-middle","Belize<br>value.birthsper1000: 23.4<br>value.deathsper1000: 4<br>worldbankincomegroup: Upper-middle","Bosnia and Herzegovina<br>value.birthsper1000: 9<br>value.deathsper1000: 9.4<br>worldbankincomegroup: Upper-middle","Botswana<br>value.birthsper1000: 23.6<br>value.deathsper1000: 7.2<br>worldbankincomegroup: Upper-middle","Brazil<br>value.birthsper1000: 14.9<br>value.deathsper1000: 6.1<br>worldbankincomegroup: Upper-middle","Bulgaria<br>value.birthsper1000: 9.6<br>value.deathsper1000: 14.2<br>worldbankincomegroup: Upper-middle","China<br>value.birthsper1000: 13.3<br>value.deathsper1000: 7.2<br>worldbankincomegroup: Upper-middle","Colombia<br>value.birthsper1000: 18.8<br>value.deathsper1000: 4.2<br>worldbankincomegroup: Upper-middle","Cook Islands<br>value.birthsper1000: 14.9<br>value.deathsper1000: 5<br>worldbankincomegroup: Upper-middle","Costa Rica<br>value.birthsper1000: 15.1<br>value.deathsper1000: 4.4<br>worldbankincomegroup: Upper-middle","Cuba<br>value.birthsper1000: 9.5<br>value.deathsper1000: 8.5<br>worldbankincomegroup: Upper-middle","Dominica<br>value.birthsper1000: 15.6<br>value.deathsper1000: 7.2<br>worldbankincomegroup: Upper-middle","Dominican Republic<br>value.birthsper1000: 20.8<br>value.deathsper1000: 5.9<br>worldbankincomegroup: Upper-middle","Ecuador<br>value.birthsper1000: 20.8<br>value.deathsper1000: 5.3<br>worldbankincomegroup: Upper-middle","Fiji<br>value.birthsper1000: 20.4<br>value.deathsper1000: 6.9<br>worldbankincomegroup: Upper-middle","Gabon<br>value.birthsper1000: 31.9<br>value.deathsper1000: 9<br>worldbankincomegroup: Upper-middle","Grenada<br>value.birthsper1000: 19.3<br>value.deathsper1000: 6.9<br>worldbankincomegroup: Upper-middle","Hungary<br>value.birthsper1000: 9.9<br>value.deathsper1000: 13<br>worldbankincomegroup: Upper-middle","Iran (Islamic Republic of)<br>value.birthsper1000: 18.8<br>value.deathsper1000: 5.1<br>worldbankincomegroup: Upper-middle","Iraq<br>value.birthsper1000: 31.1<br>value.deathsper1000: 4.8<br>worldbankincomegroup: Upper-middle","Jamaica<br>value.birthsper1000: 18<br>value.deathsper1000: 7.1<br>worldbankincomegroup: Upper-middle","Jordan<br>value.birthsper1000: 27<br>value.deathsper1000: 3.7<br>worldbankincomegroup: Upper-middle","Kazakhstan<br>value.birthsper1000: 20.5<br>value.deathsper1000: 9.7<br>worldbankincomegroup: Upper-middle","Lebanon<br>value.birthsper1000: 13.4<br>value.deathsper1000: 4.4<br>worldbankincomegroup: Upper-middle","Libya<br>value.birthsper1000: 20.7<br>value.deathsper1000: 4.2<br>worldbankincomegroup: Upper-middle","Malaysia<br>value.birthsper1000: 17.7<br>value.deathsper1000: 5<br>worldbankincomegroup: Upper-middle","Maldives<br>value.birthsper1000: 22<br>value.deathsper1000: 3.5<br>worldbankincomegroup: Upper-middle","Marshall Islands<br>value.birthsper1000: 27.2<br>value.deathsper1000: 6.6<br>worldbankincomegroup: Upper-middle","Mauritius<br>value.birthsper1000: 11.5<br>value.deathsper1000: 7.4<br>worldbankincomegroup: Upper-middle","Mexico<br>value.birthsper1000: 18.4<br>value.deathsper1000: 5.3<br>worldbankincomegroup: Upper-middle","Montenegro<br>value.birthsper1000: 11.6<br>value.deathsper1000: 9.5<br>worldbankincomegroup: Upper-middle","Namibia<br>value.birthsper1000: 26<br>value.deathsper1000: 5.7<br>worldbankincomegroup: Upper-middle","Nauru<br>value.birthsper1000: 26.4<br>value.deathsper1000: 3.5<br>worldbankincomegroup: Upper-middle","Palau<br>value.birthsper1000: 10.9<br>value.deathsper1000: 5.9<br>worldbankincomegroup: Upper-middle","Panama<br>value.birthsper1000: 19.4<br>value.deathsper1000: 5<br>worldbankincomegroup: Upper-middle","Peru<br>value.birthsper1000: 19.7<br>value.deathsper1000: 4.4<br>worldbankincomegroup: Upper-middle","Romania<br>value.birthsper1000: 10.3<br>value.deathsper1000: 11.8<br>worldbankincomegroup: Upper-middle","Saint Lucia<br>value.birthsper1000: 15.4<br>value.deathsper1000: 7<br>worldbankincomegroup: Upper-middle","Saint Vincent and the Grenadines<br>value.birthsper1000: 16.3<br>value.deathsper1000: 6.5<br>worldbankincomegroup: Upper-middle","Serbia<br>value.birthsper1000: 9.7<br>value.deathsper1000: 11.9<br>worldbankincomegroup: Upper-middle","Seychelles<br>value.birthsper1000: 16.6<br>value.deathsper1000: 6.7<br>worldbankincomegroup: Upper-middle","South Africa<br>value.birthsper1000: 20.9<br>value.deathsper1000: 11.1<br>worldbankincomegroup: Upper-middle","Suriname<br>value.birthsper1000: 17.7<br>value.deathsper1000: 4.6<br>worldbankincomegroup: Upper-middle","Thailand<br>value.birthsper1000: 10.2<br>value.deathsper1000: 7.6<br>worldbankincomegroup: Upper-middle","The former Yugoslav republic of Macedonia<br>value.birthsper1000: 10.7<br>value.deathsper1000: 9.4<br>worldbankincomegroup: Upper-middle","Tonga<br>value.birthsper1000: 25.5<br>value.deathsper1000: 6.7<br>worldbankincomegroup: Upper-middle","Tunisia<br>value.birthsper1000: 17.2<br>value.deathsper1000: 5.5<br>worldbankincomegroup: Upper-middle","Turkey<br>value.birthsper1000: 16.8<br>value.deathsper1000: 5.7<br>worldbankincomegroup: Upper-middle","Turkmenistan<br>value.birthsper1000: 21.3<br>value.deathsper1000: 8.8<br>worldbankincomegroup: Upper-middle","Tuvalu<br>value.birthsper1000: 23.6<br>value.deathsper1000: 8.7<br>worldbankincomegroup: Upper-middle","Venezuela (Bolivarian Republic of)<br>value.birthsper1000: 19.8<br>value.deathsper1000: 4.8<br>worldbankincomegroup: Upper-middle","Niue<br>value.birthsper1000: NA<br>value.deathsper1000: 5.9<br>worldbankincomegroup: Upper-middle"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(217,95,2,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(217,95,2,1)"}},"hoveron":"points","name":"Upper-middle","legendgroup":"Upper-middle","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[13.7,19.6,25.7,20.1,37.3,37.6,36.6,27.5,23.2,20.1,13.3,30.9,31,20.3,25.8,20.4,18.8,23.3,27.1,26.8,27.5,34.1,23.5,22.7,22.7,22.7,41.2,25.2,28.9,23.7,24.4,12.1,26.2,33.9,37.7,30.8,36.1,17.9,33.5,29.9,24,35.8,10.8,21.5,26.6,15.5,31.1,42.8],"y":[12.6,6.5,7,5.2,10.8,10.1,12.6,8.8,6.4,6.6,11.5,8.1,5.2,7.9,4.5,7.9,6.2,8.2,6.6,6.7,14.1,7.8,6.1,6.7,6.4,4.8,11.9,7.3,7.7,4.8,5.9,12.4,5.2,6.5,7,5.4,11.1,6.6,7.8,11.8,3.5,6,15.1,6.4,4.5,5.8,6.7,9.7],"text":["Armenia<br>value.birthsper1000: 13.7<br>value.deathsper1000: 12.6<br>worldbankincomegroup: Lower-middle","Bhutan<br>value.birthsper1000: 19.6<br>value.deathsper1000: 6.5<br>worldbankincomegroup: Lower-middle","Bolivia (Plurinational State of)<br>value.birthsper1000: 25.7<br>value.deathsper1000: 7<br>worldbankincomegroup: Lower-middle","Cabo Verde<br>value.birthsper1000: 20.1<br>value.deathsper1000: 5.2<br>worldbankincomegroup: Lower-middle","Cameroon<br>value.birthsper1000: 37.3<br>value.deathsper1000: 10.8<br>worldbankincomegroup: Lower-middle","Congo<br>value.birthsper1000: 37.6<br>value.deathsper1000: 10.1<br>worldbankincomegroup: Lower-middle","Côte d'Ivoire<br>value.birthsper1000: 36.6<br>value.deathsper1000: 12.6<br>worldbankincomegroup: Lower-middle","Djibouti<br>value.birthsper1000: 27.5<br>value.deathsper1000: 8.8<br>worldbankincomegroup: Lower-middle","Egypt<br>value.birthsper1000: 23.2<br>value.deathsper1000: 6.4<br>worldbankincomegroup: Lower-middle","El Salvador<br>value.birthsper1000: 20.1<br>value.deathsper1000: 6.6<br>worldbankincomegroup: Lower-middle","Georgia<br>value.birthsper1000: 13.3<br>value.deathsper1000: 11.5<br>worldbankincomegroup: Lower-middle","Ghana<br>value.birthsper1000: 30.9<br>value.deathsper1000: 8.1<br>worldbankincomegroup: Lower-middle","Guatemala<br>value.birthsper1000: 31<br>value.deathsper1000: 5.2<br>worldbankincomegroup: Lower-middle","Guyana<br>value.birthsper1000: 20.3<br>value.deathsper1000: 7.9<br>worldbankincomegroup: Lower-middle","Honduras<br>value.birthsper1000: 25.8<br>value.deathsper1000: 4.5<br>worldbankincomegroup: Lower-middle","India<br>value.birthsper1000: 20.4<br>value.deathsper1000: 7.9<br>worldbankincomegroup: Lower-middle","Indonesia<br>value.birthsper1000: 18.8<br>value.deathsper1000: 6.2<br>worldbankincomegroup: Lower-middle","Kiribati<br>value.birthsper1000: 23.3<br>value.deathsper1000: 8.2<br>worldbankincomegroup: Lower-middle","Kyrgyzstan<br>value.birthsper1000: 27.1<br>value.deathsper1000: 6.6<br>worldbankincomegroup: Lower-middle","Lao People's Democratic Republic<br>value.birthsper1000: 26.8<br>value.deathsper1000: 6.7<br>worldbankincomegroup: Lower-middle","Lesotho<br>value.birthsper1000: 27.5<br>value.deathsper1000: 14.1<br>worldbankincomegroup: Lower-middle","Mauritania<br>value.birthsper1000: 34.1<br>value.deathsper1000: 7.8<br>worldbankincomegroup: Lower-middle","Micronesia (Federated States of)<br>value.birthsper1000: 23.5<br>value.deathsper1000: 6.1<br>worldbankincomegroup: Lower-middle","Mongolia<br>value.birthsper1000: 22.7<br>value.deathsper1000: 6.7<br>worldbankincomegroup: Lower-middle","Morocco<br>value.birthsper1000: 22.7<br>value.deathsper1000: 6.4<br>worldbankincomegroup: Lower-middle","Nicaragua<br>value.birthsper1000: 22.7<br>value.deathsper1000: 4.8<br>worldbankincomegroup: Lower-middle","Nigeria<br>value.birthsper1000: 41.2<br>value.deathsper1000: 11.9<br>worldbankincomegroup: Lower-middle","Pakistan<br>value.birthsper1000: 25.2<br>value.deathsper1000: 7.3<br>worldbankincomegroup: Lower-middle","Papua New Guinea<br>value.birthsper1000: 28.9<br>value.deathsper1000: 7.7<br>worldbankincomegroup: Lower-middle","Paraguay<br>value.birthsper1000: 23.7<br>value.deathsper1000: 4.8<br>worldbankincomegroup: Lower-middle","Philippines<br>value.birthsper1000: 24.4<br>value.deathsper1000: 5.9<br>worldbankincomegroup: Lower-middle","Republic of Moldova<br>value.birthsper1000: 12.1<br>value.deathsper1000: 12.4<br>worldbankincomegroup: Lower-middle","Samoa<br>value.birthsper1000: 26.2<br>value.deathsper1000: 5.2<br>worldbankincomegroup: Lower-middle","Sao Tome and Principe<br>value.birthsper1000: 33.9<br>value.deathsper1000: 6.5<br>worldbankincomegroup: Lower-middle","Senegal<br>value.birthsper1000: 37.7<br>value.deathsper1000: 7<br>worldbankincomegroup: Lower-middle","Solomon Islands<br>value.birthsper1000: 30.8<br>value.deathsper1000: 5.4<br>worldbankincomegroup: Lower-middle","South Sudan<br>value.birthsper1000: 36.1<br>value.deathsper1000: 11.1<br>worldbankincomegroup: Lower-middle","Sri Lanka<br>value.birthsper1000: 17.9<br>value.deathsper1000: 6.6<br>worldbankincomegroup: Lower-middle","Sudan<br>value.birthsper1000: 33.5<br>value.deathsper1000: 7.8<br>worldbankincomegroup: Lower-middle","Swaziland<br>value.birthsper1000: 29.9<br>value.deathsper1000: 11.8<br>worldbankincomegroup: Lower-middle","Syrian Arab Republic<br>value.birthsper1000: 24<br>value.deathsper1000: 3.5<br>worldbankincomegroup: Lower-middle","Timor-Leste<br>value.birthsper1000: 35.8<br>value.deathsper1000: 6<br>worldbankincomegroup: Lower-middle","Ukraine<br>value.birthsper1000: 10.8<br>value.deathsper1000: 15.1<br>worldbankincomegroup: Lower-middle","Uzbekistan<br>value.birthsper1000: 21.5<br>value.deathsper1000: 6.4<br>worldbankincomegroup: Lower-middle","Vanuatu<br>value.birthsper1000: 26.6<br>value.deathsper1000: 4.5<br>worldbankincomegroup: Lower-middle","Viet Nam<br>value.birthsper1000: 15.5<br>value.deathsper1000: 5.8<br>worldbankincomegroup: Lower-middle","Yemen<br>value.birthsper1000: 31.1<br>value.deathsper1000: 6.7<br>worldbankincomegroup: Lower-middle","Zambia<br>value.birthsper1000: 42.8<br>value.deathsper1000: 9.7<br>worldbankincomegroup: Lower-middle"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(117,112,179,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(117,112,179,1)"}},"hoveron":"points","name":"Lower-middle","legendgroup":"Lower-middle","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[34.1,20,36.4,40.9,44.7,25.7,34.2,45.9,35.2,14.4,42.7,36.7,33,42.7,36.9,37.5,25.6,34.9,35.5,34.7,39.8,47.1,38.9,17.2,21,49.7,35.2,36.6,43.8,33,36.4,43.2,39.2,31.3],"y":[7.7,5.7,9.6,9.5,11.1,5.7,14,13.6,8.2,9.2,13.7,6.3,7.2,8.2,10.1,12.3,8.6,8.3,8,7,9,11.2,11.8,8.4,6.6,10.2,6.4,16.8,12.7,6,9.6,9.2,7.8,9.8],"text":["Afghanistan<br>value.birthsper1000: 34.1<br>value.deathsper1000: 7.7<br>worldbankincomegroup: Low","Bangladesh<br>value.birthsper1000: 20<br>value.deathsper1000: 5.7<br>worldbankincomegroup: Low","Benin<br>value.birthsper1000: 36.4<br>value.deathsper1000: 9.6<br>worldbankincomegroup: Low","Burkina Faso<br>value.birthsper1000: 40.9<br>value.deathsper1000: 9.5<br>worldbankincomegroup: Low","Burundi<br>value.birthsper1000: 44.7<br>value.deathsper1000: 11.1<br>worldbankincomegroup: Low","Cambodia<br>value.birthsper1000: 25.7<br>value.deathsper1000: 5.7<br>worldbankincomegroup: Low","Central African Republic<br>value.birthsper1000: 34.2<br>value.deathsper1000: 14<br>worldbankincomegroup: Low","Chad<br>value.birthsper1000: 45.9<br>value.deathsper1000: 13.6<br>worldbankincomegroup: Low","Comoros<br>value.birthsper1000: 35.2<br>value.deathsper1000: 8.2<br>worldbankincomegroup: Low","Democratic People's Republic of Korea<br>value.birthsper1000: 14.4<br>value.deathsper1000: 9.2<br>worldbankincomegroup: Low","Democratic Republic of the Congo<br>value.birthsper1000: 42.7<br>value.deathsper1000: 13.7<br>worldbankincomegroup: Low","Eritrea<br>value.birthsper1000: 36.7<br>value.deathsper1000: 6.3<br>worldbankincomegroup: Low","Ethiopia<br>value.birthsper1000: 33<br>value.deathsper1000: 7.2<br>worldbankincomegroup: Low","Gambia<br>value.birthsper1000: 42.7<br>value.deathsper1000: 8.2<br>worldbankincomegroup: Low","Guinea<br>value.birthsper1000: 36.9<br>value.deathsper1000: 10.1<br>worldbankincomegroup: Low","Guinea-Bissau<br>value.birthsper1000: 37.5<br>value.deathsper1000: 12.3<br>worldbankincomegroup: Low","Haiti<br>value.birthsper1000: 25.6<br>value.deathsper1000: 8.6<br>worldbankincomegroup: Low","Kenya<br>value.birthsper1000: 34.9<br>value.deathsper1000: 8.3<br>worldbankincomegroup: Low","Liberia<br>value.birthsper1000: 35.5<br>value.deathsper1000: 8<br>worldbankincomegroup: Low","Madagascar<br>value.birthsper1000: 34.7<br>value.deathsper1000: 7<br>worldbankincomegroup: Low","Malawi<br>value.birthsper1000: 39.8<br>value.deathsper1000: 9<br>worldbankincomegroup: Low","Mali<br>value.birthsper1000: 47.1<br>value.deathsper1000: 11.2<br>worldbankincomegroup: Low","Mozambique<br>value.birthsper1000: 38.9<br>value.deathsper1000: 11.8<br>worldbankincomegroup: Low","Myanmar<br>value.birthsper1000: 17.2<br>value.deathsper1000: 8.4<br>worldbankincomegroup: Low","Nepal<br>value.birthsper1000: 21<br>value.deathsper1000: 6.6<br>worldbankincomegroup: Low","Niger<br>value.birthsper1000: 49.7<br>value.deathsper1000: 10.2<br>worldbankincomegroup: Low","Rwanda<br>value.birthsper1000: 35.2<br>value.deathsper1000: 6.4<br>worldbankincomegroup: Low","Sierra Leone<br>value.birthsper1000: 36.6<br>value.deathsper1000: 16.8<br>worldbankincomegroup: Low","Somalia<br>value.birthsper1000: 43.8<br>value.deathsper1000: 12.7<br>worldbankincomegroup: Low","Tajikistan<br>value.birthsper1000: 33<br>value.deathsper1000: 6<br>worldbankincomegroup: Low","Togo<br>value.birthsper1000: 36.4<br>value.deathsper1000: 9.6<br>worldbankincomegroup: Low","Uganda<br>value.birthsper1000: 43.2<br>value.deathsper1000: 9.2<br>worldbankincomegroup: Low","United Republic of Tanzania<br>value.birthsper1000: 39.2<br>value.deathsper1000: 7.8<br>worldbankincomegroup: Low","Zimbabwe<br>value.birthsper1000: 31.3<br>value.deathsper1000: 9.8<br>worldbankincomegroup: Low"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(231,41,138,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(231,41,138,1)"}},"hoveron":"points","name":"Low","legendgroup":"Low","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"}],"layout":{"margin":{"t":50.7142659471426,"r":9.29846409298464,"b":50.5216549052165,"l":47.4221668742217},"font":{"color":"rgba(0,0,0,1)","family":"","size":18.5969281859693},"title":"Global population rates","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":22.3163138231631},"xaxis":{"domain":[0,1],"type":"linear","autorange":false,"tickmode":"array","range":[4.655,51.845],"ticktext":["10","20","30","40","50"],"tickvals":[10,20,30,40,50],"ticks":"","tickcolor":null,"ticklen":4.64923204649232,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.8775425487754},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":"Crude birth rate","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":18.5969281859693},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"type":"linear","autorange":false,"tickmode":"array","range":[0.315,17.585],"ticktext":["5","10","15"],"tickvals":[5,10,15],"ticks":"","tickcolor":null,"ticklen":4.64923204649232,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.8775425487754},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":"Crude death rate","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":18.5969281859693},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.8775425487754},"y":0.931102362204724},"annotations":[{"text":"World Bank Income Group","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":18.5969281859693},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest"},"source":"A","config":{"modeBarButtonsToAdd":[{"name":"Collaborate","icon":{"width":1000,"ascent":500,"descent":-50,"path":"M487 375c7-10 9-23 5-36l-79-259c-3-12-11-23-22-31-11-8-22-12-35-12l-263 0c-15 0-29 5-43 15-13 10-23 23-28 37-5 13-5 25-1 37 0 0 0 3 1 7 1 5 1 8 1 11 0 2 0 4-1 6 0 3-1 5-1 6 1 2 2 4 3 6 1 2 2 4 4 6 2 3 4 5 5 7 5 7 9 16 13 26 4 10 7 19 9 26 0 2 0 5 0 9-1 4-1 6 0 8 0 2 2 5 4 8 3 3 5 5 5 7 4 6 8 15 12 26 4 11 7 19 7 26 1 1 0 4 0 9-1 4-1 7 0 8 1 2 3 5 6 8 4 4 6 6 6 7 4 5 8 13 13 24 4 11 7 20 7 28 1 1 0 4 0 7-1 3-1 6-1 7 0 2 1 4 3 6 1 1 3 4 5 6 2 3 3 5 5 6 1 2 3 5 4 9 2 3 3 7 5 10 1 3 2 6 4 10 2 4 4 7 6 9 2 3 4 5 7 7 3 2 7 3 11 3 3 0 8 0 13-1l0-1c7 2 12 2 14 2l218 0c14 0 25-5 32-16 8-10 10-23 6-37l-79-259c-7-22-13-37-20-43-7-7-19-10-37-10l-248 0c-5 0-9-2-11-5-2-3-2-7 0-12 4-13 18-20 41-20l264 0c5 0 10 2 16 5 5 3 8 6 10 11l85 282c2 5 2 10 2 17 7-3 13-7 17-13z m-304 0c-1-3-1-5 0-7 1-1 3-2 6-2l174 0c2 0 4 1 7 2 2 2 4 4 5 7l6 18c0 3 0 5-1 7-1 1-3 2-6 2l-173 0c-3 0-5-1-8-2-2-2-4-4-4-7z m-24-73c-1-3-1-5 0-7 2-2 3-2 6-2l174 0c2 0 5 0 7 2 3 2 4 4 5 7l6 18c1 2 0 5-1 6-1 2-3 3-5 3l-174 0c-3 0-5-1-7-3-3-1-4-4-5-6z"},"click":"function(gd) { \n        // is this being viewed in RStudio?\n        if (location.search == '?viewer_pane=1') {\n          alert('To learn about plotly for collaboration, visit:\\n https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html');\n        } else {\n          window.open('https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html', '_blank');\n        }\n      }"}],"modeBarButtonsToRemove":["sendDataToCloud"]},"base_url":"https://plot.ly"},"evals":["config.modeBarButtonsToAdd.0.click"],"jsHooks":[]}</script>
+
+---
+class: inverse, middle, center
+
+# `htmlwidgets`: Interactive data visualization framework in R
+
+---
+
+# `htmlwidgets` for interactive graphics in R
+
+- `htmlwidgets` provides the framework on which most of the interactive plotting packages in R rely (if they use JavaScript plotting libraries on the backend).
+- [package source](https://github.com/ramnathv/htmlwidgets), [docs](http://www.htmlwidgets.org/), [gallery](http://gallery.htmlwidgets.org/)
+- Advanced usage may require knowledge/use of JavaScript.
+
+---
+
+# DT
+
+
+```r
+library(DT)
+dont_show_cols = which(grepl("^gho|^publish",
+							 colnames(who_cbdr)))
+datatable(who_cbdr[,-dont_show_cols],
+		  caption = "Global population rates in 2013 per 1,000 population",
+		  rownames = FALSE,
+		  colnames = c("World Bank Income Group" = 2,
+		  			   "Crude birth rate" = 5,
+		  			   "Crude death rate" = 6),
+		  options = list(pageLength = 5,
+		  				 lengthMenu = c(5, 10, 15)))
+```
+
+* Uses the [DataTables](https://datatables.net/) JavaScript library
+
+---
+
+class: fullscreen, middle, center
+
+<div id="htmlwidget-8d87ca057abbb17adc70" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8d87ca057abbb17adc70">{"x":{"filter":"none","caption":"<caption>Global population rates in 2013 per 1,000 population<\/caption>","data":[[2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013,2013],["Global","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Lower-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle","Upper-middle",null,null,null,null,null,null],[null,"Andorra","Antigua and Barbuda","Australia","Austria","Bahamas","Bahrain","Barbados","Belgium","Brunei Darussalam","Canada","Chile","Croatia","Cyprus","Czechia","Denmark","Equatorial Guinea","Estonia","Finland","France","Germany","Greece","Iceland","Ireland","Israel","Italy","Japan","Kuwait","Latvia","Lithuania","Luxembourg","Malta","Monaco","Netherlands","New Zealand","Norway","Oman","Poland","Portugal","Qatar","Republic of Korea","Russian Federation","Saint Kitts and Nevis","San Marino","Saudi Arabia","Singapore","Slovakia","Slovenia","Spain","Sweden","Switzerland","Trinidad and Tobago","United Arab Emirates","United Kingdom of Great Britain and Northern Ireland","United States of America","Uruguay",null,"Afghanistan","Bangladesh","Benin","Burkina Faso","Burundi","Cambodia","Central African Republic","Chad","Comoros","Democratic People's Republic of Korea","Democratic Republic of the Congo","Eritrea","Ethiopia","Gambia","Guinea","Guinea-Bissau","Haiti","Kenya","Liberia","Madagascar","Malawi","Mali","Mozambique","Myanmar","Nepal","Niger","Rwanda","Sierra Leone","Somalia","Tajikistan","Togo","Uganda","United Republic of Tanzania","Zimbabwe",null,"Armenia","Bhutan","Bolivia (Plurinational State of)","Cabo Verde","Cameroon","Congo","Côte d'Ivoire","Djibouti","Egypt","El Salvador","Georgia","Ghana","Guatemala","Guyana","Honduras","India","Indonesia","Kiribati","Kyrgyzstan","Lao People's Democratic Republic","Lesotho","Mauritania","Micronesia (Federated States of)","Mongolia","Morocco","Nicaragua","Nigeria","Pakistan","Papua New Guinea","Paraguay","Philippines","Republic of Moldova","Samoa","Sao Tome and Principe","Senegal","Solomon Islands","South Sudan","Sri Lanka","Sudan","Swaziland","Syrian Arab Republic","Timor-Leste","Ukraine","Uzbekistan","Vanuatu","Viet Nam","Yemen","Zambia",null,"Albania","Algeria","Angola","Argentina","Azerbaijan","Belarus","Belize","Bosnia and Herzegovina","Botswana","Brazil","Bulgaria","China","Colombia","Cook Islands","Costa Rica","Cuba","Dominica","Dominican Republic","Ecuador","Fiji","Gabon","Grenada","Hungary","Iran (Islamic Republic of)","Iraq","Jamaica","Jordan","Kazakhstan","Lebanon","Libya","Malaysia","Maldives","Marshall Islands","Mauritius","Mexico","Montenegro","Namibia","Nauru","Palau","Panama","Peru","Romania","Saint Lucia","Saint Vincent and the Grenadines","Serbia","Seychelles","South Africa","Suriname","Thailand","The former Yugoslav republic of Macedonia","Tonga","Tunisia","Turkey","Turkmenistan","Tuvalu","Venezuela (Bolivarian Republic of)","Niue",null,null,null,null,null,null,null],["Global","Europe","Americas","Western Pacific","Europe","Americas","Eastern Mediterranean","Americas","Europe","Western Pacific","Americas","Americas","Europe","Europe","Europe","Europe","Africa","Europe","Europe","Europe","Europe","Europe","Europe","Europe","Europe","Europe","Western Pacific","Eastern Mediterranean","Europe","Europe","Europe","Europe","Europe","Europe","Western Pacific","Europe","Eastern Mediterranean","Europe","Europe","Eastern Mediterranean","Western Pacific","Europe","Americas","Europe","Eastern Mediterranean","Western Pacific","Europe","Europe","Europe","Europe","Europe","Americas","Eastern Mediterranean","Europe","Americas","Americas",null,"Eastern Mediterranean","South-East Asia","Africa","Africa","Africa","Western Pacific","Africa","Africa","Africa","South-East Asia","Africa","Africa","Africa","Africa","Africa","Africa","Americas","Africa","Africa","Africa","Africa","Africa","Africa","South-East Asia","South-East Asia","Africa","Africa","Africa","Eastern Mediterranean","Europe","Africa","Africa","Africa","Africa",null,"Europe","South-East Asia","Americas","Africa","Africa","Africa","Africa","Eastern Mediterranean","Eastern Mediterranean","Americas","Europe","Africa","Americas","Americas","Americas","South-East Asia","South-East Asia","Western Pacific","Europe","Western Pacific","Africa","Africa","Western Pacific","Western Pacific","Eastern Mediterranean","Americas","Africa","Eastern Mediterranean","Western Pacific","Americas","Western Pacific","Europe","Western Pacific","Africa","Africa","Western Pacific","Africa","South-East Asia","Eastern Mediterranean","Africa","Eastern Mediterranean","South-East Asia","Europe","Europe","Western Pacific","Western Pacific","Eastern Mediterranean","Africa",null,"Europe","Africa","Africa","Americas","Europe","Europe","Americas","Europe","Africa","Americas","Europe","Western Pacific","Americas","Western Pacific","Americas","Americas","Americas","Americas","Americas","Western Pacific","Africa","Americas","Europe","Eastern Mediterranean","Eastern Mediterranean","Americas","Eastern Mediterranean","Europe","Eastern Mediterranean","Eastern Mediterranean","Western Pacific","South-East Asia","Western Pacific","Africa","Americas","Europe","Africa","Western Pacific","Western Pacific","Americas","Americas","Europe","Americas","Americas","Europe","Africa","Africa","Americas","South-East Asia","Europe","Western Pacific","Eastern Mediterranean","Europe","Europe","Western Pacific","Americas","Western Pacific",null,"Africa","Americas","Eastern Mediterranean","Europe","South-East Asia","Western Pacific"],[23.4,8.9,16.5,13.2,9.5,15.3,15.2,12.7,11.7,15.5,11.3,13.9,9.5,11.5,11.1,11.3,35.4,10.9,11.2,12.3,8.5,9.7,14.5,15.4,20.3,9.2,8.4,20.6,11,11.3,11.6,9.2,6.8,10.7,13.8,12.4,20.9,10.8,8.7,11,9.6,11.8,13.8,8.8,19.4,9.9,10.7,10,10.4,12,10.4,14.5,14.5,12.2,13.2,14.5,12.1,34.1,20,36.4,40.9,44.7,25.7,34.2,45.9,35.2,14.4,42.7,36.7,33,42.7,36.9,37.5,25.6,34.9,35.5,34.7,39.8,47.1,38.9,17.2,21,49.7,35.2,36.6,43.8,33,36.4,43.2,39.2,31.3,35,13.7,19.6,25.7,20.1,37.3,37.6,36.6,27.5,23.2,20.1,13.3,30.9,31,20.3,25.8,20.4,18.8,23.3,27.1,26.8,27.5,34.1,23.5,22.7,22.7,22.7,41.2,25.2,28.9,23.7,24.4,12.1,26.2,33.9,37.7,30.8,36.1,17.9,33.5,29.9,24,35.8,10.8,21.5,26.6,15.5,31.1,42.8,25.1,12.9,24.3,44.1,16.8,17.8,11,23.4,9,23.6,14.9,9.6,13.3,18.8,14.9,15.1,9.5,15.6,20.8,20.8,20.4,31.9,19.3,9.9,18.8,31.1,18,27,20.5,13.4,20.7,17.7,22,27.2,11.5,18.4,11.6,26,26.4,10.9,19.4,19.7,10.3,15.4,16.3,9.7,16.6,20.9,17.7,10.2,10.7,25.5,17.2,16.8,21.3,23.6,19.8,null,16.6,38.3,17,26.2,13.6,19.9,14.7],[7.8,8.4,6.8,6.4,9,6.1,2.2,6.4,9.9,3.6,7.2,5.4,11.1,5.5,10,9.6,11.5,11.3,9.4,8.7,10.6,9.7,6.2,5.9,5.1,9.5,9.5,1.9,14.2,12,6.8,7.5,8.7,8.3,6.3,8.1,2.8,10,9.1,1.3,5.5,14.8,8.5,10.2,3.2,4.5,9.4,9.1,8.2,9.6,7.7,9.6,1.1,8.9,8.4,9.1,9.1,7.7,5.7,9.6,9.5,11.1,5.7,14,13.6,8.2,9.2,13.7,6.3,7.2,8.2,10.1,12.3,8.6,8.3,8,7,9,11.2,11.8,8.4,6.6,10.2,6.4,16.8,12.7,6,9.6,9.2,7.8,9.8,8.5,12.6,6.5,7,5.2,10.8,10.1,12.6,8.8,6.4,6.6,11.5,8.1,5.2,7.9,4.5,7.9,6.2,8.2,6.6,6.7,14.1,7.8,6.1,6.7,6.4,4.8,11.9,7.3,7.7,4.8,5.9,12.4,5.2,6.5,7,5.4,11.1,6.6,7.8,11.8,3.5,6,15.1,6.4,4.5,5.8,6.7,9.7,7.9,9.4,5.7,13.9,7.6,6.3,13.5,4,9.4,7.2,6.1,14.2,7.2,4.2,5,4.4,8.5,7.2,5.9,5.3,6.9,9,6.9,13,5.1,4.8,7.1,3.7,9.7,4.4,4.2,5,3.5,6.6,7.4,5.3,9.5,5.7,3.5,5.9,5,4.4,11.8,7,6.5,11.9,6.7,11.1,4.6,7.6,9.4,6.7,5.5,5.7,8.8,8.7,4.8,5.9,6.9,10.1,6.7,6.2,10.2,7.5,7.1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>year<\/th>\n      <th>World Bank Income Group<\/th>\n      <th>country<\/th>\n      <th>region<\/th>\n      <th>Crude birth rate<\/th>\n      <th>Crude death rate<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"lengthMenu":[5,10,15],"columnDefs":[{"className":"dt-right","targets":[0,4,5]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Leaflet
+
+
+```r
+library(leaflet)
+
+df = data.frame(name = "University Hall",
+				lat = 37.8719032,
+				long = -122.2664164)
+
+leaflet(df) %&gt;%
+	addProviderTiles(providers$OpenStreetMap.Mapnik) %&gt;%
+	setView(-122.2585399, 37.8718992, zoom = 16) %&gt;%
+	addCircleMarkers(~long, ~lat, popup = ~name)
+```
+
+* Uses the [Leaflet](http://leafletjs.com/) JavaScript library
+* Typically just `addTiles()` could be used instead of `addProviderTiles()`, but the default map background was not loading as of this writing.
+
+---
+
+class: fullscreen, middle, center
+
+<div id="htmlwidget-3e12195084a968e94b75" style="width:100%;height:100%;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3e12195084a968e94b75">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap.Mapnik",null,null,{"errorTileUrl":"","noWrap":false,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false}]},{"method":"addCircleMarkers","args":[37.8719032,-122.2664164,10,null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2,"dashArray":null},null,null,"University Hall",null,null,null,null]}],"setView":[[37.8718992,-122.2585399],16,[]],"limits":{"lat":[37.8719032,37.8719032],"lng":[-122.2664164,-122.2664164]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# `htmlwidgets` packages
+
+- [plotly](https://github.com/ropensci/plotly) ([docs](https://plot.ly/r/)):
+    - Convert `ggplot2` graphics `\(\rightarrow\)` interactive graphics via `ggplotly()` and the plot.ly [ggplot2 library](https://plot.ly/ggplot2/) OR
+    - Create interactive graphics directly with `plot_ly()` and the plot.ly [R library](https://plot.ly/r/)
+    - Can operate entirely locally (your plot isn't automatically uploaded to plot.ly's servers and shared with the world).
+- [ggiraph](https://github.com/davidgohel/ggiraph); [ggiraphExtra](https://github.com/cardiomoon/ggiraphExtra): make `ggplot2` graphics interactive.
+- [DT](https://github.com/rstudio/DT) ([docs](http://rstudio.github.io/DT/)): interactive tables
+- [leaflet](https://github.com/rstudio/leaflet) ([docs](http://rstudio.github.io/leaflet)): interactive maps
+- [dygraphs](https://github.com/rstudio/dygraphs) ([docs](http://rstudio.github.io/dygraphs)): interactive time series plots
+- [d3heatmap](https://github.com/rstudio/d3heatmap) ([demo](http://rpubs.com/jcheng/mtcars-heatmap)): interactive heatmaps
+- [sparkline](https://github.com/htmlwidgets/sparkline): interactive versions of very small graphics (Edward Tufte)
+- [DiagrammeR](http://rich-iannone.github.io/DiagrammeR/): interactive diagrams
+
+---
+
+# `htmlwidgets` packages
+
+- [Highcharter](http://jkunst.com/highcharter/): interface to the Highcharts JavaScript library
+- [formattable](https://renkun.me/formattable/): visualize/format vectors and data frames
+- [networkD3](http://christophergandrud.github.io/networkD3/): interactive [D3](http://d3js.org/) JavaScript network graphs
+- [threejs](https://github.com/bwlewis/rthreejs): interactive 3d plots and globes
+- [MetricsGraphics](http://hrbrmstr.github.io/metricsgraphics/): interface to the MetricsGraphics D3 JavaScript library
+- [rbokeh](https://github.com/bokeh/rbokeh) ([docs](http://hafen.github.io/rbokeh/), [useR2016 slides](http://slides.com/hafen/rbokeh#/)): interface to the Bokeh Python library
+- [streamgraph](http://hrbrmstr.github.io/streamgraph/): interactive streamgraphs
+- [visNetwork](https://github.com/datastorm-open/visNetwork) ([docs](http://datastorm-open.github.io/visNetwork)): interactive network graphs
+- `\(\ldots\)`
+
+---
+
+# `htmlwidgets` helper packages
+
+- [crosstalk](https://github.com/rstudio/crosstalk) ([docs](http://rstudio.github.io/crosstalk/)): htmlwidgets that can interact with one another
+- [flexdashboard](https://github.com/rstudio/flexdashboard) ([docs](http://rmarkdown.rstudio.com/flexdashboard)): interactive dashboards via R Markdown
+- [shinyjs](https://github.com/daattali/shinyjs) ([demo](http://daattali.com/shiny/shinyjs-demo/)): helper functions that can be used with Shiny or interactive R Markdown documents.
+- [manipulateWidget](https://github.com/rte-antares-rpackage/manipulateWidget): add more interactivity to htmlwidgets
+
+---
+class: inverse, middle, center
+
+# Other R packages for interactive and animated graphics
+
+---
+
+# R packages for interactive graphics
+## Other packages worth mentioning
+
+- [googleVis](https://github.com/mages/googleVis): R interface to Google Charts API
+- [ggvis](https://github.com/rstudio/ggvis): SVG and HTML5 Canvas graphics, rendered using [vega](http://trifacta.github.io/vega/), declared in a "grammar of graphics" style similar to `ggplot2` ([docs](http://ggvis.rstudio.com/))
+- [animint](https://github.com/tdhock/animint) ([useR2016 tutorial](https://github.com/tdhock/interactive-tutorial)): animated interactive web graphics
+- [rgl](https://r-forge.r-project.org/projects/rgl/): interactive 3D visualizations using OpenGL and other frameworks/formats ([vignette](https://cran.r-project.org/web/packages/rgl/vignettes/rgl.html))
+
+???
+
+* This is by no means an exhaustive list.
+* I'm only listing R packages that are currently available to download and use, appear to be actively maintained and haven't been subsumed by other R packages, produce graphics that can viewed in a web browser locally or embedded in an html document like this one that was produced with knitr and rmarkdown. I'm not going to list anything that requires server-side support from interfaces like Shiny or Rook to be interactive, for example.
+* Many of these produce graphics in SVG, or Scalable Vector Graphics, which is, according to wikipedia, an XML-based vector image format for 2D graphics with support for interactivity and animation.  Not all of them do, though -- for example, googleVis produces some output as Flash.
+
+---
+
+# MotionChart with `googleVis` (Flash)
+
+
+```r
+library(googleVis)
+# for knitr:
+# data.frame with &gt;=4 cols: x, y, id, time. color and size optional,
+# but if you don't provide them,
+# it will choose them for you (if there are columns left to use).
+# Motion Chart only displayed when hosted on a web server
+# or placed in a directory listed in Flash's local trusted sources.
+mc = gvisMotionChart(as.data.frame(
+		subset(who_mort,
+			   !is.na(country)&amp;!is.na(value.maternal),
+			   select = c(country, year, region, worldbankincomegroup, value.infant, value.maternal))),
+	idvar = "country", timevar = "year",
+	xvar = "value.infant", yvar = "value.maternal",
+	colorvar = "worldbankincomegroup",
+	options = list(width = 750, height = 650))
+```
+
+
+```r
+plot(mc) # in an R session, opens in browser
+```
+
+
+
+???
+
+* "The googleVis package provides an interface between R and the Google Charts API. Google Charts offer interactive charts which can be embedded into web pages. The best known of these charts is probably the Motion Chart, popularised by Hans Rosling in his TED talks.
+The functions of the googleVis package allow the user to visualise data stored in R data frames with Google Charts without uploading the data to Google. The output of a googleVis function is html code that contains the data and references to JavaScript functions hosted by Google."
+* # data.frame with &gt;=4 cols: x, y, id, time. color and size optional, but if you don't provide them, it will choose them for you (if there are columns left to use)
+
+---
+
+class: fullscreen, middle, center
+
+## &lt;a href="gvis_motion_chart.html" target="_blank"&gt;View visualization in new tab&lt;/a&gt;
+
+???
+
+* by default the html file is saved in a temporary folder. if you have problems with a motion chart not displaying, it may be because of Flash's security settings. You'll need to manually add the directory where the html file is stored to the list of trusted local directories.
+
+---
+class: inverse, middle, center
+
+# Questions?
+
+---
+
+# References
+
+&lt;a name=bib-Wickham_2009&gt;&lt;/a&gt;[[1]](#cite-Wickham_2009) H. Wickham.
+_ggplot2_. Springer Science + Business Media, 2009. URL:
+[http://dx.doi.org/10.1007/978-0-387-98141-3](http://dx.doi.org/10.1007/978-0-387-98141-3).
+
+&lt;a name=bib-Wickham_2010&gt;&lt;/a&gt;[[2]](#cite-Wickham_2010) H. Wickham.
+"A Layered Grammar of Graphics". In: _Journal of Computational and
+Graphical Statistics_ 19.1 (2010), pp. 3-28. URL:
+[http://dx.doi.org/10.1198/jcgs.2009.07098](http://dx.doi.org/10.1198/jcgs.2009.07098).
+
+&lt;a name=bib-Wickham_2014&gt;&lt;/a&gt;[[3]](#cite-Wickham_2014) H. Wickham.
+"Tidy Data". In: _Journal of Statistical Software_ 59.10 (2014).
+URL:
+[http://www.jstatsoft.org/v59/i10](http://www.jstatsoft.org/v59/i10).
+
+&lt;a name=bib-Wilkinson_2005&gt;&lt;/a&gt;[[4]](#cite-Wilkinson_2005) L.
+Wilkinson. _The Grammar of Graphics_. Springer-Verlag New York, .
+URL:
+[http://dx.doi.org/10.1007/0-387-28695-0](http://dx.doi.org/10.1007/0-387-28695-0).
+
+---
+
+# Credits
+
+#### Built using [xaringan](https://github.com/yihui/xaringan) with
++ [knitr](http://yihui.name/knitr),
++ [R Markdown](https://rmarkdown.rstudio.com),
++ the [remark.js](https://github.com/gnab/remark/) framework,
++ the [RefManageR](http://cran.r-project.org/web/packages/RefManageR/index.html) bibliography manager, and
++ the [highlight.js](https://highlightjs.org/) syntax highlighter.
+
+---
+
+# Session Info
+
+
+```
+## 
+## Attaching package: 'pander'
+```
+
+```
+## The following object is masked from 'package:R.utils':
+## 
+##     wrap
+```
+
+**R version 3.3.2 (2016-10-31)**
+
+**Platform:** x86_64-apple-darwin13.4.0 (64-bit) 
+
+
+**attached base packages:** 
+_grid_, _methods_, _stats_, _graphics_, _grDevices_, _utils_, _datasets_ and _base_
+
+**other attached packages:** 
+_pander(v.0.6.0)_, _leaflet(v.1.1.0)_, _DT(v.0.2)_, _plotly(v.4.5.6)_, _gdtools(v.0.1.3)_, _ggiraph(v.0.3.2.9000)_, _ggrepel(v.0.6.5)_, _googleVis(v.0.6.2)_, _gtable(v.0.2.0)_, _ggdendro(v.0.1-20)_, _RColorBrewer(v.1.1-2)_, _tidyr(v.0.6.1)_, _hexbin(v.1.27.1)_, _munsell(v.0.4.3)_, _showtext(v.0.4-6)_, _sysfonts(v.0.5)_, _ggplot2(v.2.2.1)_, _rmarkdown(v.1.3)_, _lubridate(v.1.6.0)_, _dplyr(v.0.5.0)_, _WHO(v.0.2)_, _R.utils(v.2.5.0)_, _R.oo(v.1.21.0)_, _R.methodsS3(v.1.7.1)_ and _RefManageR(v.0.13.1)_
+
+**loaded via a namespace (and not attached):** 
+_Rcpp(v.0.12.9)_, _lattice(v.0.20-34)_, _assertthat(v.0.1)_, _rprojroot(v.1.2)_, _digest(v.0.6.12)_, _mime(v.0.5)_, _R6(v.2.2.0)_, _plyr(v.1.8.4)_, _backports(v.1.0.5)_, _evaluate(v.0.10)_, _httr(v.1.2.1)_, _xaringan(v.0.2)_, _lazyeval(v.0.2.0)_, _curl(v.2.3)_, _labeling(v.0.3)_, _stringr(v.1.2.0)_, _htmlwidgets(v.0.8)_, _RCurl(v.1.95-4.8)_, _shiny(v.1.0.0)_, _httpuv(v.1.3.3)_, _base64enc(v.0.1-3)_, _rvg(v.0.1.2)_, _htmltools(v.0.3.5)_, _tibble(v.1.2)_, _codetools(v.0.2-15)_, _XML(v.3.98-1.5)_, _viridisLite(v.0.1.3)_, _showtextdb(v.1.0)_, _MASS(v.7.3-45)_, _bitops(v.1.0-6)_, _jsonlite(v.1.3)_, _xtable(v.1.8-2)_, _DBI(v.0.6)_, _magrittr(v.1.5)_, _scales(v.0.4.1)_, _bibtex(v.0.4.0)_, _stringi(v.1.1.2)_, _xml2(v.1.1.1)_, _tools(v.3.3.2)_, _RJSONIO(v.1.3-0)_, _purrr(v.0.2.2)_, _crosstalk(v.1.0.0)_, _yaml(v.2.1.14)_, _colorspace(v.1.3-2)_ and _knitr(v.1.15.1)_
+    </textarea>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "tomorrow-night-eighties",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
