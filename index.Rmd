@@ -223,7 +223,7 @@ geom                | stat                |  notable default settings
 ???
 
 * For one and two dimensional kernel density estimates, by default, the bandwidth is chosen automatically via "rules of thumb," which I won't go into here, but the formulas are available in the R help via the functions I've listed here. For two dimensional density estimates, the kernel cannot be changed to anything other than Gaussian.
-* A couple of years ago, I was at a biostat job talk where a question and discussion about ggplot violin plots on one of the presenter's slides totally derailed the talk. As you can see, they're a bit tricky.
+* Whenever you allow ggplot to transform your data, you should always know what it's doing -- here I'm careful to state the defaults and changed them just to demonstrate how it can be done.  This is one tricky part about using a "smart" graphics package -- you need to be sure to keep up with what it's doing to your data. There was a biostat job talk a couple of years ago that was really amazing for the most part -- really advanced theory and good discussion -- but it was completely derailed for a good 5 minutes by discussion over a single graphic -- a ggplot violin plot -- and which wasn't even demonstrating a main point of the talk.  As you can see, violin plots are a bit tricky. The big issues were that there were several geometric objects drawn on the graph, and a couple of them performed transformations on the data, but it wasn't made clear exactly what those transformations were.  It's easy to use some of these functions without thinking very hard about them, particularly if you leave them at their default settings, but you really need to be careful.
 
 ---
 
@@ -237,6 +237,7 @@ geom                | stat                |  notable default settings
 ???
 
 * For loess and gam I only listed the most interesting parameters -- there are more that you can set. Just know that the "et cetera" indicates that any defaults not listed here for these functions are not modified in ggplot's call.
+* Note that if a geom function has a default statistical transformation and that stat function has the same geometric object as its default -- which is often the case -- you'll get the same plot no matter which you decide to use (the geom or the stat).
 
 ---
 
@@ -258,7 +259,8 @@ These `stat_*` functions do not have assumed `geom_*` mappings. See their docume
 
 ???
 
-There are many more stat functions that aren't the default stat for any geometric object.  However, they can still be called directly and the majority of them perform transformations on your data. Check the documentation for details.
+* There are many more stat functions that aren't the default stat for any geometric object.  However, they can still be called directly and the majority of them perform transformations on your data. Check the documentation for details.
+
 
 ---
 
@@ -417,10 +419,9 @@ p
 
 * This is a simple example to get us started. If you've used ggplot before, this plot will probably be pretty boring for you, but we'll start here and make things more complicated in a moment.
 * Here we have DATA which is the result of merging two datasets downloaded from the World Health Organization's (WHO) Global Health Observatory (GHO).
-* For 193 countries, we have both crude birth rate per 1,000 people and crude mortality rate per 1,000 people in a single year -- 2013. The crude birth rate is generally computed as a ratio. The numerator is the number of live births observed in a population during a reference period and the denominator is the number of person-years lived by the population during the same period. It is expressed as events per 1,000 population.
-* We also have the World Bank income group and global region for each of these countries. For this grouping, income is measured using gross national income per capita. Economies are then divided into four income groupings: low, lower-middle, upper-middle, and high, as you can see here.
-* Each row is an observation, as we''ve defined it for this problem -- a single country. Each column is a variable. This data is tidy, at least for how we choose to represent it now -- but there are other ways to structure it.
-* There are no implicit or explicit transformations of the data going on, and the only aesthetics are the position of each point in two dimensional space, defined by x and y, and the color of the points, which represent the income group. The geometric objects here are points, which are displayed in ggplot by default as circles.
+* For 193 countries, we have both crude birth rate per 1,000 people and crude mortality rate per 1,000 people in a single year -- 2013.
+* We also have the World Bank income group and global region for each of these countries.
+* Each row in the data is an observation, as we''ve defined it for this problem -- a single country. Each column is a variable. This data is tidy, at least for how we choose to represent it now -- but there are other ways to structure it.
 
 ---
 
@@ -431,7 +432,10 @@ class: fullscreen, middle, center
 
 ???
 
-* All that said, this is not a finished product.  We can tell that, there is a pattern in the data, but to me, this plot raises more questions than it answers.
+* The crude birth and death rates are ratios. The numerator is the number of live births (or deaths) observed in a population during a reference period and the denominator is the number of person-years lived by the population during the same period. It is expressed as events per 1,000 population.
+* For the World Bank income grouping, income is measured using gross national income per capita. Economies are then divided into four income groupings: low, lower-middle, upper-middle, and high, as you can see here.
+* There are no implicit or explicit transformations of the data going on, and the only aesthetics are the position of each point in two dimensional space, defined by x and y, and the color of the points, which represent the income group. The geometric objects here are points, which are displayed in ggplot by default as circles.
+* All that said, this is not a finished product.  We can tell that there is a pattern in the data, but to me, this plot raises more questions than it answers.
 * I'm not going to dwell too much on what a good versus bad plot is -- that's a whole separate topic that others can cover better than I can -- but I just wanted to point that out here as a segue to the next few graphics.
 
 ---
@@ -456,7 +460,9 @@ p
 
 ???
 
-
+* One of the first things that sticks out at me in the previous plot is the ordering of the groups in the legend. The groups are in alphabetical order, which is the default for ggplot given no other information.
+* Let's change the ordering to something more sensible: high, upper-middle, lower-middle, and then low.  There's an additional level in the data, Global, which represents summaries and isn't used in this scatterplot. We can put it last.
+* Then we'll use this special addition operator provided by ggplot2 that allows us to switch out the original data for the plot with new data. Plot objects store the data, so even though we've changed the data frame in our R session, ggplot won't know about those changes unless we tell it to use the new data.
 
 ---
 
@@ -464,6 +470,10 @@ class: fullscreen, middle, center
 
 ```{r grouporder_scatterplot1, ref.label="grouporder_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
+
+???
+
+* As you can see, the legend is now ordered differently, and so the colors assigned to each group have changed, as well. Now the pattern in the data is a little easier to read, since, from left to right, the colors of the majority of the points generally go in the same order as they're displayed in the legend, from high income to low income.
 
 ---
 
@@ -488,7 +498,10 @@ p
 
 ???
 
-* Because it''s just good practice, let's tweak some visual elements. First, we can add labels to each axis and a title to the graph.
+* Because it''s just good practice and is pretty critical to understanding a data visualization, let's add some labels to each axis and a title, subtitle, and data source caption to the graph.
+* There are multiple ways to specify most labels in ggplot. This is just one option that seemed most efficient for this situation. Since we aren't changing other aspects of the x and y axis, I used `xlab()` and `ylab()` instead of the `scale_x_continuous()` and `scale_y_continuous()` functions. Likewise, because we're setting a caption here as well as a title and subtitle, I used `labs()` instead of `ggtitle()`, since `ggtitle()` can't set captions.
+* Since newer versions of ggplot left-align titles, we're manually centering them via the `theme()` function.
+* Also, subtitles and captions are new as of ggplot2 v2.2.0.
 
 ---
 
@@ -496,6 +509,8 @@ class: fullscreen, middle, center
 
 ```{r label_scatterplot1, ref.label="label_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
+
+* OK, so now it's a lot clearer what's going on here, but the label on the legend sticks out like a sore thumb. Let's fix that.
 
 ---
 
@@ -511,12 +526,23 @@ p
 
 * For discrete/qualitative color schemes: `scale_colour_hue()`, `scale_colour_discrete()`, `scale_colour_brewer()`, `scale_colour_grey()`, `scale_colour_manual()`, `scale_colour_identity()`
 * For continuous (sequential or diverging) color schemes: `scale_colour_continuous()`, `scale_colour_distiller()`, `scale_colour_gradient()`, `scale_colour_gradient2()`, `scale_color_gradientn()`, `scale_colour_date()`, `scale_colour_datetime()`
+
+???
+
+* Because the aesthetic that we want to rename is color, we'll call some `scale_colour_*()` function to rename it.  Here, I'm using `scale_colour_brewer()` where the first argument is the new name. I've listed the other `scale_colour_*()` functions here. There are similar functions for each type of aesthetic, like shape, linetype, and so on.
+* While we're at it, we can also tweak some visual elements. This isn't really required, but the default colors provided by ggplot aren't necessarily the best ones. For example, you might want to use colors that are more accessible for viewers who are color-blind.
+* We can also move the legend around so it doesn't waste so much space where we could instead be displaying data.
+
 ---
 
 class: fullscreen, middle, center
 
 ```{r legend_scatterplot1, ref.label="legend_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
+
+???
+
+* OK, so our legend is now a little less conspicuous down here at the bottom, it has a sensible title, and we've got a color scheme that's maybe a little easier to see and doesn't scream "ggplot defaults."
 
 ---
 
@@ -533,6 +559,13 @@ class: fullscreen, middle, center
 - [scales](http://cran.r-project.org/web/packages/scales/index.html): additional functions to deal with ggplot `scale`s, including color palettes
 - $\ldots$
 
+???
+
+* If you'd like to explore some other color schemes, here are a few packages that can help you do that.
+* The RColorBrewer package is actually what's driving the `scale_colour_brewer()` function that I used here.
+* The munsell package was created by Hadley Wickham's sister and is what is used to create the default color schemes in ggplot.
+* The dichromat package is pretty cool because it not only provides some color palettes, but it can also show you what any color palette would look like to a person with one of several types of color-blindness.
+
 ---
 
 # Add a summary (or two)
@@ -541,13 +574,18 @@ class: fullscreen, middle, center
 p = p +
 	stat_ellipse(type = "t", level = 0.9,
 				 segments = 80, alpha = 0.5) +
-	 geom_smooth(aes(color = NULL), method = "loess",
-	 			 span = 0.6, se = FALSE,
-	 			 color = "grey40", linetype = "longdash")
+	geom_smooth(aes(color = NULL), method = "loess",
+	 			span = 0.6, se = FALSE,
+	 			color = "grey40", linetype = "longdash")
 p
 ```
 
 * An alternative way to map an aesthetic to only some layers: specify the mapping in each layer but not in the call to `ggplot`.
+
+???
+
+* OK, back to our scatterplot. Another common thing we might want to do with data we've plotted is to summarize it and display that summary over the raw data.
+* Here, we're adding two summaries. The first is a 90% confidence ellipse, which is really just an ad hoc way of showing where we'd expect most of our data points to lie. The second is a locally weighted scatterplot smoother, or loess regression, with a span of 60%. I've also turned off the confidence band for the regression line because it doesn't seem to add much here and detracts from the rest of the plot.
 
 ---
 
@@ -556,9 +594,15 @@ class: fullscreen, middle, center
 ```{r summary_scatterplot1, ref.label="summary_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
+???
+
+* At the risk of making the plot a little "busy," these summaries seem to elucidate the relationship between these variables in this sample.
+* The dashed line is our non-parametric regression fit and sheds some light on the pattern across groups.
+* The ellipses give us an idea of what's going on within each group, on the whole. They've ordered themselves very nicely along the x-axis in the order of their income group.
+
 ---
 
-# Tweak the theme and font
+# Tweak the theme and text
 
 ```{r theme_scatterplot0, eval=FALSE}
 old_theme = theme_set(theme_minimal(base_size = 14))
@@ -568,6 +612,12 @@ p
 * Theme options: `theme_gray()`, `theme_bw()`, `theme_linedraw()`, `theme_light()`, `theme_dark()`, `theme_minimal()`, `theme_classic()`, `theme_void()`
 * Alternatively, the call to `theme_minimal()` above could be "added" to the plot `p`. However, this would wipe out previous changes made to `p` via `theme()`.
 
+???
+
+* Now, we might like to change the theme to something a little cleaner. `theme_grey()` is the default ggplot2 theme, with its recognizable grey background, but not everyone loves it. Luckily, there are lots of built-in options to choose from.
+* Here, we'll set the theme to something much cleaner since there's already a lot going on in our plot. We can also bump up the font size while we're at it to make the text more readable.
+* Like everything in ggplot, there are multiple ways to accomplish this. Here, I'm using `theme_set()` because we've already modified parts of the theme (like the alignment of the title and subtitle and position of the legend). If we were to "add" `theme_minimal()` to our plot object, it would obliterate those theme changes and we'd have to redo them. However, `theme_set()` keeps them intact.
+
 ---
 
 class: fullscreen, middle, center
@@ -575,20 +625,25 @@ class: fullscreen, middle, center
 ```{r theme_scatterplot1, ref.label="theme_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
+* And here we have a cleaner plot with text that's more legible.
+
 ---
 
 # `ggplot2` theme packages
 
 - [ggthemes](https://github.com/jrnold/ggthemes): extra `geom`s, `scale`s, and `theme`s for use with `ggplot2`
 - [hrbrthemes](https://github.com/hrbrmstr/hrbrthemes): typography-centric themes for `ggplot2`
-- [xkcd](https://CRAN.R-project.org/package=xkcd): `ggplot2` plot theme in the style of XKCD comics
+- [xkcd](https://CRAN.R-project.org/package=xkcd): `ggplot2` plot theme in the style of [XKCD comics](https://xkcd.com/)
 - [ggplot2bdc](https://github.com/briandconnelly/ggplot2bdc): 'clean' and specialized themes + additional useful functions
 - [ggthemr](https://github.com/cttobin/ggthemr): themes with predefined color palettes and options to modify other elements
 - $\ldots$
 
+* Here are a handful of packages that provide alternative ggplot2 themes.
+* XKCD is more of a proof of concept than anything, I guess, but if you ever need it, it's there.
+
 ---
 
-# Tweak the theme and font
+# Tweak the theme and text
 
 ```{r font_scatterplot0, eval=FALSE}
 library(showtext)
@@ -603,7 +658,11 @@ p
 * Turn off use of `showtext`: `showtext.auto(FALSE)`
 * Alternatively, use `showtext.begin()` and `showtext.end()` to only turn on `showtext` as desired
 * See [this blog post](http://statr.me/2014/07/showtext-with-knitr/) for details on using `showtext` with `knitr`
-    * The author recommends [`Cairo`](https://CRAN.R-project.org/package=Cairo) graphics devices for raster output due to sub-par antialiasing with default devices. YMMV
+
+???
+
+* At the risk of getting a little obsessive, let's try changing the font in our plot. This is something that may come up when you're preparing plots for publication, as some journals may want you to use Arial or some other specific font in everything you submit, including plots. You can accomplish this via other means, like Adobe Illustrator, but to me, this is much easier.
+* Here, I'm using a newer package called `showtext` to apply the font to the plot and a package called `sysfonts` to grab the font I want from Google fonts.
 
 ---
 
@@ -611,6 +670,12 @@ class: fullscreen, middle, center
 
 ```{r font_scatterplot1, ref.label="font_scatterplot0", fig.showtext=TRUE, message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
+
+???
+
+* The difference here is subtle but the font has been switched out.
+* You can also use fonts installed on your local system, and this package will convert them into shapes so that, if you save your plot as a pdf or something, the fonts don't have to be embedded to display properly on someone else's computer.
+* The author of showtext recommends [`Cairo`](https://CRAN.R-project.org/package=Cairo) graphics devices for raster output due to sub-par antialiasing with default devices. I didn't have problems with the default graphics device, but your mileage may vary.
 
 ---
 
@@ -638,6 +703,11 @@ class: fullscreen, middle, center
 - [rphylopic](https://github.com/sckott/rphylopic)
 
 ]
+
+???
+
+* The packages listed here on the left are for changing fonts on regular text and/or making sure that text renders the way you want it to in your output file. `extrafont` is kind of the original package in this arena, and it works great, but it requires a little more work to get it going, so I went with the simpler example for this presentation.
+* On the right, you'll see some packages that allow you to use emoji and custom icons or images, mostly as plot markers rather than in place of text. For example, the ggflags package allows you to use country flags as markers in a scatterplot.
 
 ---
 
@@ -686,9 +756,6 @@ new_theme = theme_set(old_theme)
 ```
 
 ???
-
-* Here we are explicitly calling a ggplot transformation that asks ggplot to hexagonally bin, in two dimensions, our observations. Here we're telling it to create bins of width 4 points for both x and y. The default is actually specified as binwidth, not number of bins, and it is 30 for both. The geometric objects, hexagons, are implied by this statement. Whenever you allow ggplot to transform your data, you should always know what it's doing -- here I'm careful to state the defaults and changed them just to demonstrate how it can be done.  This is one tricky part about using a "smart" graphics package -- you need to be sure to keep up with what it's doing to your data.  There was a job talk recently that I know some of you attended which was really amazing for the most part -- really advanced theory and good discussion -- but it was completely derailed for a good 5 minutes by discussion over a single graphic, which was made in ggplot, and which wasn't even demonstrating a main point of the talk.  The big issues were that there were several geometric objects drawn on the graph, and a couple of them performed transformations on the data, but it wasn't made clear exactly what those transformations were.  It's easy to use some of these functions without thinking very hard about them, particularly if you leave them at their default settings, but you really need to be careful.  That's why I'm showing this plot with the "stat_binhex" first, so that it's clear there''s a transformation happening.  However...
-* As you can see, this produces the same graph. However, now I'm using a call to a "geom" which has a defualt statistical transformation (as opposed to a stat with a default geom). I've explicitly stated the default here for clarity, which is called "binhex," or hexagonal binning of observations to form counts.
 
 ---
 
@@ -1254,7 +1321,7 @@ mc = gvisMotionChart(as.data.frame(
 plot(mc) # in an R session, opens in browser
 ```
 
-```{r googlevis1b, message=FALSE, echo=FALSE, cache=FALSE}
+```{r googlevis1b, message=FALSE, echo=FALSE, cache=TRUE}
 print(mc, file = "gvis_motion_chart.html")
 ```
 
