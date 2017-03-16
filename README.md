@@ -14,9 +14,7 @@ render("index.Rmd")
 browseURL("index.html")
 ```
 
-**Note**: To compile as-is, the following R packages should be installed (versions used to successfully render this document are included for reference):
-+ [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) v1.3
-+ [RefManageR](https://CRAN.R-project.org/package=RefManageR) v0.13.1
+The relevant code used to generate the presentation has been `purl()`ed out into [index.R](https://github.com/saraemoore/Rdataviz2017/blob/master/index.R). If you wish to recreate the plots interactively but not rerender the deck, this is the file you should use. **Note**: To step through this R script as-is, the following R packages should be installed (versions used to successfully render this document are included for reference):
 + [WHO](https://CRAN.R-project.org/package=WHO) v0.2
 + [ggplot2](https://CRAN.R-project.org/package=ggplot2) v2.2.1
 + [sysfonts](https://CRAN.R-project.org/package=sysfonts) v0.5
@@ -32,6 +30,10 @@ browseURL("index.html")
 + [DT](https://CRAN.R-project.org/package=DT) v0.2
 + [leaflet](https://CRAN.R-project.org/package=leaflet) v1.1.0
 + [googleVis](https://CRAN.R-project.org/package=googleVis) v0.6.2
+
+The following packages are additionally required to render [index.Rmd](https://github.com/saraemoore/Rdataviz2017/blob/master/index.Rmd):
++ [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) v1.3
++ [RefManageR](https://CRAN.R-project.org/package=RefManageR) v0.13.1
 + [pander](https://CRAN.R-project.org/package=pander) v0.6.0
 
 **Note**: the `googleVis` graphic to which there is a link on slide 74 requires Flash. Your browser may require additional configuration to display this graphic when working from a local repository.
