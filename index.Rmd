@@ -510,6 +510,8 @@ class: fullscreen, middle, center
 ```{r label_scatterplot1, ref.label="label_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
+???
+
 * OK, so now it's a lot clearer what's going on here, but the label on the legend sticks out like a sore thumb. Let's fix that.
 
 ---
@@ -625,6 +627,8 @@ class: fullscreen, middle, center
 ```{r theme_scatterplot1, ref.label="theme_scatterplot0", message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
+???
+
 * And here we have a cleaner plot with text that's more legible.
 
 ---
@@ -637,6 +641,8 @@ class: fullscreen, middle, center
 - [ggplot2bdc](https://github.com/briandconnelly/ggplot2bdc): 'clean' and specialized themes + additional useful functions
 - [ggthemr](https://github.com/cttobin/ggthemr): themes with predefined color palettes and options to modify other elements
 - $\ldots$
+
+???
 
 * Here are a handful of packages that provide alternative ggplot2 themes.
 * XKCD is more of a proof of concept than anything, I guess, but if you ever need it, it's there.
