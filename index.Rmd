@@ -44,7 +44,7 @@ http://saraemoore.github.io/Rdataviz2017
 
 ???
 
-* I won't be showing all the code on the slides today, but it's all available in the R Markdown document used to create these slides in this repository on github.
+* I won't be showing all the code on the slides today, but it's all available in the R Markdown document used to create these slides in this repository on github, or in the corresponding R script that's also in the github repository.
 
 ---
 
@@ -71,11 +71,11 @@ class: inverse, middle, center
 
 ???
 
-* If you're here, you're probably already using ggplot or are interested in learning to use it. But, I'm still going to tell you why it's a good thing to use.
-* Of course, it's pretty. Graphics made with ggplot are eye-catching.  This is actually pretty important -- it goes a long way when you want anyone who is not a statistician to look at your graphs.
+* From what I understand, a lot of you are probably already using ggplot or are interested in learning to use it. But, I'm still going to tell you why it's a good thing to use.
+* Of course, it's pretty. Graphics made with ggplot are eye-catching.  This is actually pretty important -- it goes a long way when you want anyone to look at your graphs.
 * The code you use to call ggplot and create a graphic is fairly intuitive.  This is because of the "grammar of graphics" that it adheres to, and we'll get back to that in a bit. This is what the "gg" in "ggplot" stands for -- "grammar of graphics" -- so the philosophy is pretty central to the package.
 * If you learn how to use it well, you can make almost any visualization in it, and your reports, presentations, papers, and so on will look more cohesive because you stuck to a particular style throughout.
-* Finally, with a little help from other R packages, ggplot is able to interface with geographical maps.
+* Finally, with a little help from other R packages, ggplot is able to interface with geographical maps, if that's important to you.
 
 ---
 
@@ -90,9 +90,13 @@ class: inverse, middle, center
 
 * So, what are the arguments against ggplot?
 * It's slower than other R graphics systems. This is a fair point. However, it's probably not something you'll notice under everyday use.
-* It also won't draw some graphics that you might want it to. One example that's often brought up is 3D surface plots. But, do you really want to make a static 3D perspective plot? There are other, arguably better, ways to represent three-dimensional data in 2D, like contour plots and heatmaps. This is kind of the story with most things that ggplot supposedly "can't" do -- it's a principled decision by a designer to limit the use of his product -- artistic license. For example, having two y-axes, each using a different scale for a different variable, is difficult if not impossible to do in ggplot -- which may be for the best because having two y-axes can be misleading. Moving x-axis labels to the top, rather than the bottom, is difficult but can be done. ggplot also refuses to use more than six shapes -- citing difficultly in determining which is which -- unless you manually override this by specifying your own shapes.
-* ggplot can be difficult to break into. If you force yourself to use it, it will become natural fairly quickly, though. You can also start with qplot aka "quick plot," but I won't be going over that here.
-* Some people argue that lattice is better at trellis graphs, which were made popular by William Cleveland's 1993 book "Visualizing Data." However, I disagree. I've included a link here to a compilation of a series of blog posts from 2009 in which nearly every graphic in the entire Lattice book by Deepayan Sarkar was recreated in ggplot. You can tweak these examples to make them look even more like lattice output, if you want, but the point is that faceting works just as well.
+* It also won't draw some graphics that you might want it to.
+    * One example that's often brought up is 3D surface plots. But, do you really want to make a static 3D perspective plot? There are other, arguably better, ways to represent three-dimensional data in 2D, like contour plots and heatmaps. This is kind of the story with most things that ggplot supposedly "can't" do -- it's a principled decision by a designer to limit the use of his product -- artistic license.
+    * For example, having two y-axes, each using a different scale for a different variable, was almost impossible to do in ggplot until recently -- which may have been for the best because having two y-axes can be misleading.
+    * Moving x-axis labels to the top, rather than the bottom, is another thing that was difficult until recently.
+    * ggplot also refuses to use more than six shapes -- citing difficultly in determining which is which -- unless you manually override this by specifying your own shapes.
+* ggplot can be difficult to break into. If you force yourself to use it, it will become natural fairly quickly, though. You can also start with `qplot()` aka "quick plot," but I won't be going over that here.
+* Some people argue that lattice is better at trellis graphs, which were made popular by Bill Cleveland's 1993 book "Visualizing Data." However, I disagree. I've included a link here to a compilation of a series of blog posts from 2009 in which nearly every graphic in the entire Lattice book by Deepayan Sarkar was recreated in ggplot. You can tweak these examples to make them look even more like lattice output, if you want, but the point is that faceting works just as well.
 
 ---
 
@@ -139,7 +143,7 @@ class: inverse, middle, center
 ???
 
 * As I mentioned previously, one of the best qualities of ggplot is that a series of commands used to generate a graphic are human-readable.  This is because ggplot adheres to the so-called "grammar of graphics," first laid out by Leland Wilkinson in 1999. The general idea is, instead of using a "name," "chart typology," or drawing from what Hadley Wickham calls a "big collection of special cases," think more abstractly and use a "statement" to describe a graphic -- and we need a grammar to construct statements. This infinitely expands the number of unique graphics that can be created and it adheres to the **DRY** ("don't repeat yourself") programming principle (as opposed to WET, "write everything twice" or "we enjoy typing")
-* Hadley Wickham's quote from his 2010 paper on his take grammar of graphics is just meant to say that this is not a recipe for a perfect graphic -- you can still make some pretty poor visualizations with ggplot -- but it is the first step.
+* Hadley Wickham's quote from his 2010 paper on his take on the grammar of graphics is just pointing out that this is not a recipe for a perfect graphic -- you can still make some pretty poor visualizations with ggplot -- but it is the first step.
 
 ---
 
@@ -182,7 +186,7 @@ ggplot() +
 ???
 
 * Some guides, including the ggplot book, start you off with the qplot or "quick plot" command. That's nice if you're coming from another graphics framework like base graphics in R. But, in the interest of time, because I'm assuming a little bit of familiarity with ggplot with this group, and because the ggplot command is more powerful than qplot, I'm going to skip right to using the ggplot command here.
-* These are some simple examples of the ways in which you would create a very simple graph using ggplot. Any aesthetics or data you provide to the ggplot command, which always gets called first in the "statement," set defaults for the entire graph. You can instead choose to leave the ggplot command empty -- without arguments -- if you'd like to specify individual data and aesthetics for each geometric object. You can even specify a defaults AND specify different settings for individual geometric elements. Note that it is best practice to not repeat yourself, so typically you'll set some defaults up front and only change later in the statement any individual elements that you want to change.
+* These are some simple examples of a couple of ways in which you could create a very simple plot using ggplot. Any aesthetics or data you provide to the ggplot command, which always gets called first in the "statement," set defaults for the entire graph. You can instead choose to leave the ggplot command empty -- without arguments -- if you'd like to specify individual data and aesthetics for each geometric object. You can even specify a defaults AND specify different settings for individual geometric elements. Note that it is best practice to not repeat yourself, so typically you'll set some defaults up front and only change later in the statement any individual elements that you want to change.
 
 ---
 
@@ -202,7 +206,7 @@ geom                | stat                |  notable default settings
 ???
 
 * Some geometric objects are straightforward. Others involve statistical transformations.
-* On this slide and the next is a reference list of the geometric elements in ggplot that "silently" transform data by default, i.e. their default stat is not "identity." Also listed here are the defaults of those transformations. Although I called a "stat" function earlier that, by default, created a "geom", it is much more common in practice to just call a "geom" and add arguments specifying the "stat".
+* On this slide and the next two is a reference list of the geometric elements in ggplot that "silently" transform data by default. In other words, their default stat is not "identity." Also listed here are the defaults of those transformations. You can certainly always call a "stat" function that creates a "geom", but it's much more common in practice to just call a "geom" and add arguments specifying the "stat".
 * The boxplot is a special case where many elements cannot be set by the user, but that's alright because they're what you'd expect them to be. The middle line is the median and the lower and upper hinges represent the lower and upper quartiles, respectively. The one thing you can specify is how far - at a maximum - the whiskers extend beyond the hinges, but the default (1.5 x inter-quartile range) is consistent with John Tukey's boxplot. You can also make a notched boxplot with geom_boxplot, and the notch locations are not specifiable, but I won't go into the settings for that here -- you can find it in the documentation if you're interested.
 
 ---
@@ -216,6 +220,11 @@ geom                | stat                |  notable default settings
 `geom_density()`    | `stat_density()`    | Gaussian kernel; bandwidth estimated by `stats::bw.nrd0()` using Silverman's "rule of thumb" (calls `stats::density()`)
 `geom_violin()`     | `stat_ydensity()`   | Gaussian kernel; bandwidth estimated by `stats::bw.nrd0()` using Silverman's "rule of thumb" (calls `stats::density()`); all violins have same area before trimming tails, tails are trimmed to [range of y]
 
+???
+
+* For one and two dimensional kernel density estimates, by default, the bandwidth is chosen automatically via "rules of thumb," which I won't go into here, but the formulas are available in the R help via the functions I've listed here. For two dimensional density estimates, the kernel cannot be changed to anything other than Gaussian.
+* A couple of years ago, I was at a biostat job talk where a question and discussion about ggplot violin plots on one of the presenter's slides totally derailed the talk. As you can see, they're a bit tricky.
+
 ---
 
 # When geoms transform
@@ -227,9 +236,7 @@ geom                | stat                |  notable default settings
 
 ???
 
-* For one and two dimensional kernel density estimates, by default, the bandwidth is chosen automatically via Scott's "rule of thumb," which I won't go into here, but the formula is available in the R help via the functions I've listed here. For two dimensional density estimates, the kernel cannot be changed to anything other than Gaussian.
 * For loess and gam I only listed the most interesting parameters -- there are more that you can set. Just know that the "et cetera" indicates that any defaults not listed here for these functions are not modified in ggplot's call.
-* FYI, violin plots were the big culprit for derailing the job talk a couple of years ago. As you can see, they're a bit tricky.
 
 ---
 
@@ -249,6 +256,10 @@ These `stat_*` functions do not have assumed `geom_*` mappings. See their docume
 * `stat_unique`: Remove duplicates.
 * `stat_identity`
 
+???
+
+There are many more stat functions that aren't the default stat for any geometric object.  However, they can still be called directly and the majority of them perform transformations on your data. Check the documentation for details.
+
 ---
 
 # Where to go for help with `ggplot2`
@@ -261,10 +272,18 @@ These `stat_*` functions do not have assumed `geom_*` mappings. See their docume
 * The [data visualisation](http://r4ds.had.co.nz/data-visualisation.html) and [graphics for communication](http://r4ds.had.co.nz/graphics-for-communication.html) chapters in Garrett Grolemund and Hadley Wickham's [R for data science](http://r4ds.had.co.nz/).
 * Winston Chang's R Graphics Cookbook, [1st edition (2012)](http://shop.oreilly.com/product/0636920023135.do) or forthcoming 2nd edition (2017)
 
+???
+
+Here are a few resources I've found helpful when learning how to do certain tasks in ggplot.
+
 ---
 class: inverse, middle, center
 
 # `ggplot2` Examples
+
+???
+
+OK, enough setup -- let's run through an example of using ggplot.
 
 ---
 
@@ -377,8 +396,8 @@ who_yllmajorcause = as.data.frame(subset(who_data[["WHS2_126"]], year==2012) %>%
 
 ???
 
-* WHO GHO
-* If you don''t want to go to this trouble, ggplot2 ships with several good datasets that you can use instead -- a few of them are listed here. You can try your hand with one of those if you want some practice.
+* For the majority of the examples in this presentation, I'm going to use data acquired via the WHO R package. This package just downloads data via the World Health Organization's (WHO) Global Health Observatory (GHO) public API.
+* If you would rather not go to this trouble, ggplot2 ships with several good datasets that you can use instead -- a few of them are listed here. You can try your hand with one of those if you want some practice.
 
 ---
 
@@ -396,8 +415,12 @@ p
 
 ???
 
-* This is a simple example to get us started. Here we have DATA which contains all the NCAA basketball games played over 30 seasons between 1984 and 2014. Each row is an observation, as we''ve defined it for this problem -- a single basketball game. Each column is a variable. This data is tidy, at least for how we choose to represent it now -- but there are other ways to structure it.
-* There are no implicit or explicit transformations of the data going on, and the only aesthetics are the position of each point in two dimensional space, defined by x and y. The geometric objects here are points, which are displayed in ggplot by default as circles. And, because it''s just good practice, we''ve tweaked some visual elements, adding labels to each axis and a title to the graph.
+* This is a simple example to get us started. If you've used ggplot before, this plot will probably be pretty boring for you, but we'll start here and make things more complicated in a moment.
+* Here we have DATA which is the result of merging two datasets downloaded from the World Health Organization's (WHO) Global Health Observatory (GHO).
+* For 193 countries, we have both crude birth rate per 1,000 people and crude mortality rate per 1,000 people in a single year -- 2013. The crude birth rate is generally computed as a ratio. The numerator is the number of live births observed in a population during a reference period and the denominator is the number of person-years lived by the population during the same period. It is expressed as events per 1,000 population.
+* We also have the World Bank income group and global region for each of these countries. For this grouping, income is measured using gross national income per capita. Economies are then divided into four income groupings: low, lower-middle, upper-middle, and high, as you can see here.
+* Each row is an observation, as we''ve defined it for this problem -- a single country. Each column is a variable. This data is tidy, at least for how we choose to represent it now -- but there are other ways to structure it.
+* There are no implicit or explicit transformations of the data going on, and the only aesthetics are the position of each point in two dimensional space, defined by x and y, and the color of the points, which represent the income group. The geometric objects here are points, which are displayed in ggplot by default as circles.
 
 ---
 
@@ -408,7 +431,8 @@ class: fullscreen, middle, center
 
 ???
 
-* All that said, this is not a great graphic.  We can tell that, obviously, the winning team always scored as many or more points than the losing team, and it seems like there might be many games where the score was close, but it's difficult to tell because of all the overplotting. I'm not going to dwell too much on what a good versus bad plot is -- you'll know that from other classes, like Professor Dudoit's Computational Statistics course, but I just wanted to point that out here as a segue to the next graphic.
+* All that said, this is not a finished product.  We can tell that, there is a pattern in the data, but to me, this plot raises more questions than it answers.
+* I'm not going to dwell too much on what a good versus bad plot is -- that's a whole separate topic that others can cover better than I can -- but I just wanted to point that out here as a segue to the next few graphics.
 
 ---
 
@@ -429,6 +453,10 @@ who_cbdr$worldbankincomegroup = factor(
 p = p %+% subset(who_cbdr, !is.na(country))
 p
 ```
+
+???
+
+
 
 ---
 
@@ -460,7 +488,7 @@ p
 
 ???
 
-* The crude birth rate is generally computed as a ratio. The numerator is the number of live births observed in a population during a reference period and the denominator is the number of person-years lived by the population during the same period. It is expressed as births per 1,000 population.
+* Because it''s just good practice, let's tweak some visual elements. First, we can add labels to each axis and a title to the graph.
 
 ---
 
