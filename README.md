@@ -1,5 +1,7 @@
 # Rdataviz2017
 
+**Note** that the interactive plots displayed in this slide deck do not seem to render well (if at all) in Firefox. Chrome and Safari appear to be unaffected by this issue (though this has not been thoroughly tested). YMMV.
+
 This repository contains a slide deck entitled "Advanced R Data Visualization," which was presented to UC Berkeley Epidemiology PhD students on 16 March 2016.  Included in the presentation are examples of the use of [ggplot2](http://cran.r-project.org/web/packages/ggplot2/index.html) and a subset of the interactive graphic authoring packages currently available for R. The deck was built using the [R](http://www.r-project.org/) package [xaringan](https://github.com/yihui/xaringan), with support from [knitr](http://cran.r-project.org/web/packages/knitr/index.html), [R Markdown](https://rmarkdown.rstudio.com), and [pandoc](http://johnmacfarlane.net/pandoc/).  Extensions employed in this deck include:
 + the [remark.js](https://github.com/gnab/remark/) framework,
 + the [RefManageR](http://cran.r-project.org/web/packages/RefManageR/index.html) bibliography manager, and
