@@ -16,7 +16,7 @@ render("index.Rmd")
 browseURL("index.html")
 ```
 
-The relevant code used to generate the presentation has been `purl()`ed out into [index.R](https://github.com/saraemoore/Rdataviz2017/blob/master/index.R). If you wish to recreate the plots interactively but not rerender the deck, this is the file you should use. **Note**: To step through this R script as-is, the following R packages should be installed (versions used to successfully render this document are included for reference):
+The relevant code used to generate the presentation has been `purl()`ed out into [index.R](https://github.com/saraemoore/Rdataviz2017/blob/master/index.R). If you wish to recreate the plots interactively but not rerender the deck, this is the file you should use. **Note**: To step through this R script as-is, the following R packages should be installed from CRAN unless otherwise noted (versions used to successfully render this document are included for reference):
 + [WHO](https://CRAN.R-project.org/package=WHO) v0.2
 + [ggplot2](https://CRAN.R-project.org/package=ggplot2) v2.2.1
 + [sysfonts](https://CRAN.R-project.org/package=sysfonts) v0.5
