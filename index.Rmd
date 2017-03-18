@@ -554,7 +554,7 @@ class: fullscreen, middle, center
 - [munsell](https://github.com/cwickham/munsell): called by `scales` to generate continuous/gradient palettes in `ggplot2`
 - [colorspace](https://CRAN.R-project.org/package=colorspace): color palettes based on the HCL (Hue-Chroma-Luminance) and HSV (Hue-Saturation-Value) systems
 - [viridis](https://github.com/sjmgarnier/viridis): color schemes from Matplotlib (Python plotting library)
-- [dichromat](https://CRAN.R-project.org/package=dichromat) ([palette browser](http://geography.uoregon.edu/datagraphics/color_scales.htm): color palettes for color-impaired viewers
+- [dichromat](https://CRAN.R-project.org/package=dichromat) ([palette browser](http://geography.uoregon.edu/datagraphics/color_scales.htm)): color palettes for color-impaired viewers
 - [pals](https://github.com/kwstat/pals): color palettes and palette evaluation tools
 - [ggsci](https://github.com/road2stat/ggsci/): color palettes inspired by scientific journals, dataviz libraries, scifi movies, TV shows
 - [wesanderson](https://github.com/karthik/wesanderson): self-explanatory ([tumblr inspiration](http://wesandersonpalettes.tumblr.com/))
@@ -1118,7 +1118,7 @@ htmlwidgets::saveWidget(ggiraph(ggobj = p_ggiraph, width_svg = 8, height_svg = 6
 	"ggiraph_scatter_plot.html")
 ```
 
-## <a href="ggiraph_scatter_plot.html" target="_blank">View visualization in new tab</a>
+### <a href="ggiraph_scatter_plot.html" target="_blank">View visualization in new tab</a>
 
 ---
 
@@ -1193,7 +1193,7 @@ class: fullscreen, middle, center
 
 # `leaflet`
 
-```{r leaflet0, eval=FALSE}
+```{r simple_leaflet0, eval=FALSE}
 library(leaflet)
 
 df = data.frame(name = "University Hall",
@@ -1213,7 +1213,84 @@ leaflet(df) %>%
 
 class: fullscreen, middle, center
 
-```{r leaflet1, ref.label="leaflet0", out.width='100%', out.height='100%', message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
+```{r simple_leaflet1, ref.label="simple_leaflet0", out.width='100%', out.height='100%', message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
+```
+
+---
+
+# `leaflet`
+
+```{r prep_fancy_leaflet, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+library(jsonlite)
+json_url = "https://raw.githubusercontent.com/mledoze/countries/master/countries.json"
+countryinfo = readLines(json_url, warn = FALSE) %>%
+    paste(collapse = "\n") %>%
+    fromJSON(simplifyVector = FALSE)
+
+name_names = c("common", "official")
+country_names <- sapply(countryinfo, function(country) {
+    country$name[name_names]
+})
+country_names = data.frame(t(country_names))
+
+yll_bycondition = subset(who_data[["WHS2_126"]],
+                     year==2012&ghecauses=="Communicable & other Group I")
+
+name_dists = lapply(as.list(country_names),
+    function(x) adist(as.character(yll_bycondition$country), x, partial = TRUE, ignore.case = TRUE))
+
+closest_name = apply(sapply(name_dists, apply, 1, min), 1, which.min)
+min_name_dist_idx = sapply(name_dists, apply, 1, which.min)
+closest_name_idx = as.vector(sapply(seq_along(closest_name),
+                                    function(i) min_name_dist_idx[i,closest_name[i]]))
+
+bad_matches = c("Macedonia", "Brunei", "Iran")
+bad_match_who_idx = sapply(bad_matches, grep, yll_bycondition$country)
+bad_match_ref_idx = sapply(bad_matches, grep, country_names$common)
+closest_name_idx[bad_match_who_idx] = bad_match_ref_idx
+
+name_matches = as.data.frame(cbind(country_names[closest_name_idx,], as.character(yll_bycondition$country)))
+names(name_matches) = c(paste("countries", name_names, sep = "_"), "who")
+
+# name_matches[apply(sapply(name_dists, apply, 1, min), 1, min) > 0,]
+# who countries with incorrect matches are fixed above
+
+country_latlng = sapply(countryinfo, `[[`, "latlng") %>% sapply(unlist)
+country_latlng[sapply(country_latlng, is.null)] = NA
+country_latlng = as.data.frame(do.call(rbind, country_latlng))
+names(country_latlng) = c("latitude", "longitude")
+yll_bycondition = as.data.frame(cbind(yll_bycondition, country_latlng[closest_name_idx,]))
+```
+
+```{r preview_fancy_leaflet}
+head(subset(yll_bycondition,
+            select = c(country, longitude, latitude, value)), 2)
+```
+
+```{r fancy_leaflet0, eval=FALSE}
+pal = colorNumeric(palette = "plasma",
+                   domain = yll_bycondition$value)
+
+yll_bycondition$popup_label = paste0(yll_bycondition$country, ": ",
+                                     yll_bycondition$value, "%")
+
+leaflet(yll_bycondition) %>%
+    addProviderTiles(providers$CartoDB.DarkMatter) %>%
+    addCircleMarkers(lng = ~longitude, lat = ~latitude,
+                     popup = ~popup_label,
+                     color = ~pal(value), fillColor = ~pal(value)) %>%
+    addLegend("bottomright", pal = pal, values = ~value,
+              title = "Population's<br/>years of life lost<br/>to communicable<br/>& other group I<br/>conditions",
+              labFormat = labelFormat(suffix = "%"), opacity = 0.8)
+```
+
+* Even better: use polygons to outline the countries instead of circle markers at their centers. See `addPolygons()`, `addGeoJSON()`, etc.
+
+---
+
+class: fullscreen, middle, center
+
+```{r fancy_leaflet1, ref.label="fancy_leaflet0", out.width='100%', out.height='100%', message=FALSE, echo=FALSE, cache=FALSE, warning=FALSE}
 ```
 
 ---
@@ -1222,9 +1299,10 @@ class: fullscreen, middle, center
 
 ```{r rbokeh0, eval=FALSE}
 library(rbokeh)
-p <- figure() %>%
+p <- figure(data = subset(who_cbdr, !is.na(country)),
+            width = 800, height = 600,
+            title = "Global population rates in 2013 per 1,000 population") %>%
     ly_points(value.birthsper1000, value.deathsper1000,
-              data = subset(who_cbdr, !is.na(country)),
               color = worldbankincomegroup,
               hover = list(country,
                            value.birthsper1000,
@@ -1337,8 +1415,15 @@ print(mc, file = "gvis_motion_chart.html")
 
 * "The googleVis package provides an interface between R and the Google Charts API. Google Charts offer interactive charts which can be embedded into web pages. The best known of these charts is probably the Motion Chart, popularised by Hans Rosling in his TED talks.
 The functions of the googleVis package allow the user to visualise data stored in R data frames with Google Charts without uploading the data to Google. The output of a googleVis function is html code that contains the data and references to JavaScript functions hosted by Google."
-* # data.frame with >=4 cols: x, y, id, time. color and size optional, but if you don't provide them, it will choose them for you (if there are columns left to use)
+* data.frame with >=4 cols: x, y, id, time. color and size optional, but if you don't provide them, it will choose them for you (if there are columns left to use)
 * by default the html file is saved in a temporary folder. if you have problems with a motion chart not displaying, it may be because of Flash's security settings. You'll need to manually add the directory where the html file is stored to the list of trusted local directories.
+
+---
+background-image: url('assets/img/dogs.jpg')
+background-position: 50% 50%
+class: center, bottom, inverse
+
+# Dog tax
 
 ---
 class: inverse, middle, center

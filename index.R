@@ -327,7 +327,7 @@ datatable(who_cbdr[,-dont_show_cols],
 		  options = list(pageLength = 5,
 		  				 lengthMenu = c(5, 10, 15)))
 
-## ----leaflet0------------------------------------------------
+## ----simple_leaflet0------------------------------------------------
 library(leaflet)
 
 df = data.frame(name = "University Hall",
@@ -339,11 +339,73 @@ leaflet(df) %>%
 	setView(-122.2585399, 37.8718992, zoom = 16) %>%
 	addCircleMarkers(~long, ~lat, popup = ~name)
 
+## ----prep_fancy_leaflet, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE------------------------
+library(jsonlite)
+json_url = "https://raw.githubusercontent.com/mledoze/countries/master/countries.json"
+countryinfo = readLines(json_url, warn = FALSE) %>%
+    paste(collapse = "\n") %>%
+    fromJSON(simplifyVector = FALSE)
+
+name_names = c("common", "official")
+country_names <- sapply(countryinfo, function(country) {
+    country$name[name_names]
+})
+country_names = data.frame(t(country_names))
+
+yll_bycondition = subset(who_data[["WHS2_126"]],
+                     year==2012&ghecauses=="Communicable & other Group I")
+
+name_dists = lapply(as.list(country_names),
+    function(x) adist(as.character(yll_bycondition$country), x, partial = TRUE, ignore.case = TRUE))
+
+closest_name = apply(sapply(name_dists, apply, 1, min), 1, which.min)
+min_name_dist_idx = sapply(name_dists, apply, 1, which.min)
+closest_name_idx = as.vector(sapply(seq_along(closest_name),
+                                    function(i) min_name_dist_idx[i,closest_name[i]]))
+
+bad_matches = c("Macedonia", "Brunei", "Iran")
+bad_match_who_idx = sapply(bad_matches, grep, yll_bycondition$country)
+bad_match_ref_idx = sapply(bad_matches, grep, country_names$common)
+closest_name_idx[bad_match_who_idx] = bad_match_ref_idx
+
+name_matches = as.data.frame(cbind(country_names[closest_name_idx,], as.character(yll_bycondition$country)))
+names(name_matches) = c(paste("countries", name_names, sep = "_"), "who")
+
+# name_matches[apply(sapply(name_dists, apply, 1, min), 1, min) > 0,]
+# who countries with incorrect matches are fixed above
+
+country_latlng = sapply(countryinfo, `[[`, "latlng") %>% sapply(unlist)
+country_latlng[sapply(country_latlng, is.null)] = NA
+country_latlng = as.data.frame(do.call(rbind, country_latlng))
+names(country_latlng) = c("latitude", "longitude")
+yll_bycondition = as.data.frame(cbind(yll_bycondition, country_latlng[closest_name_idx,]))
+
+## ----preview_fancy_leaflet-------------------------------------------------
+head(subset(yll_bycondition,
+            select = c(country, longitude, latitude, value)), 2)
+
+## ----fancy_leaflet0, eval=FALSE--------------------------------------------
+pal = colorNumeric(palette = "plasma",
+                   domain = yll_bycondition$value)
+
+yll_bycondition$popup_label = paste0(yll_bycondition$country, ": ",
+                                     yll_bycondition$value, "%")
+
+leaflet(yll_bycondition) %>%
+    addProviderTiles(providers$CartoDB.DarkMatter) %>%
+    addCircleMarkers(lng = ~longitude, lat = ~latitude,
+                     popup = ~popup_label,
+                     color = ~pal(value), fillColor = ~pal(value)) %>%
+    addLegend("bottomright", pal = pal, values = ~value,
+              title = "Population's<br/>years of life lost<br/>to communicable<br/>& other group I<br/>conditions",
+              labFormat = labelFormat(suffix = "%"), opacity = 0.8)
+
 ## ----rbokeh0-------------------------------------------------
 library(rbokeh)
-p <- figure() %>%
+p <- figure(data = subset(who_cbdr, !is.na(country),
+            width = 800, height = 600,
+            title = "Global population rates in 2013 per 1,000 population") %>%
     ly_points(value.birthsper1000, value.deathsper1000,
-              data = subset(who_cbdr, !is.na(country)),
               color = worldbankincomegroup,
               hover = list(country,
                            value.birthsper1000,

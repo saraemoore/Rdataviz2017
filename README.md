@@ -30,6 +30,7 @@ The relevant code used to generate the presentation has been `purl()`ed out into
 + [gdtools](https://cran.r-project.org/package=gdtools) v0.1.3
 + [plotly](https://CRAN.R-project.org/package=plotly) v4.5.6
 + [DT](https://CRAN.R-project.org/package=DT) v0.2
++ [jsonlite](https://cran.r-project.org/package=jsonlite) v1.3
 + [leaflet](https://CRAN.R-project.org/package=leaflet) v1.1.0
 + [googleVis](https://CRAN.R-project.org/package=googleVis) v0.6.2
 
@@ -38,4 +39,12 @@ The following packages are additionally required to render [index.Rmd](https://g
 + [RefManageR](https://CRAN.R-project.org/package=RefManageR) v0.13.1
 + [pander](https://CRAN.R-project.org/package=pander) v0.6.0
 
-**Note**: the `googleVis` graphic to which there is a link on slide 74 requires Flash. Your browser may require additional configuration to display this graphic when working from a local repository.
+**Note**: the `googleVis` graphic to which there is a link on slide 76 requires Flash. Your browser may require additional configuration to display this graphic when working from a local repository.
+
+---
+
+### Added post-presentation:
+
+* Improved `leaflet` example
+* Resized `rbokeh` output
+* Dog tax
